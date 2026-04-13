@@ -21,5 +21,10 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "tailwindcss": "^4.2.2"
+  },
+  "overrides": {
+    "vite-plugin-pwa": {
+      "vite": "$vite"
+    }
   }
 }
