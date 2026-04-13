@@ -518,12 +518,16 @@ class Store {
         this.save();
         
         setTimeout(() => {
-            this.state = {
-                ...this.state,
-                notifications: this.state.notifications.filter(n => n.id !== id)
-            };
-            this.save();
+            this.removeNotification(id);
         }, 5000);
+    }
+
+    removeNotification(id: string) {
+        this.state = {
+            ...this.state,
+            notifications: this.state.notifications.filter(n => n.id !== id)
+        };
+        this.save();
     }
 
     // Live Simulation Logic

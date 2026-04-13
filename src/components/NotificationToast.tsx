@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStore } from '../store';
+import { useStore, store } from '../store';
 
 export const NotificationToast: React.FC = () => {
     const { notifications } = useStore();
@@ -11,7 +11,7 @@ export const NotificationToast: React.FC = () => {
             {notifications.map(n => (
                 <div 
                     key={n.id} 
-                    className={`bg-white/90 backdrop-blur-2xl border border-border-main p-5 rounded-[24px] shadow-[0_20px_40px_rgba(236,72,153,0.1)] flex items-center gap-4 animate-in slide-in-from-right fade-in duration-500`}
+                    className={`bg-white/90 backdrop-blur-2xl border border-border-main p-5 rounded-[24px] shadow-[0_20px_40px_rgba(236,72,153,0.1)] flex items-center gap-4 animate-in slide-in-from-right fade-in duration-500 relative group`}
                 >
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
                          n.type === 'success' ? 'bg-green-100 text-green-600' : 
@@ -25,10 +25,20 @@ export const NotificationToast: React.FC = () => {
                             } />
                         </svg>
                     </div>
-                    <div>
+                    <div className="flex-1">
                         <div className="text-[13px] font-black text-text-main leading-tight">{n.message}</div>
                         <div className="text-[10px] font-bold text-text-muted mt-0.5">Vừa xong</div>
                     </div>
+                    
+                    {/* Close Button */}
+                    <button 
+                        onClick={() => store.removeNotification(n.id)}
+                        className="p-1 hover:bg-background rounded-full text-text-muted hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
             ))}
         </div>
