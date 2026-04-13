@@ -1,7 +1,7 @@
 import React from 'react';
-import { useStore } from '../../store';
-import { ProductCard } from '../ProductCard';
-import { VerifiedBadge } from '../VerifiedBadge';
+import { useStore } from '../hooks/useStore';
+import { ProductCard } from '../components/ProductCard';
+import { VerifiedBadge } from '../components/VerifiedBadge';
 
 interface ShopProfileProps {
     sellerId: string;

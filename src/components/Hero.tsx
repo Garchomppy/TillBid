@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { router } from '../router';
+import { router } from '../router/routerService';
 
 export const Hero: React.FC = () => {
     const [timer, setTimer] = useState("05:12");

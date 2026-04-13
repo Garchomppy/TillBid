@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { type Product, store } from "../store";
-import { router } from "../router";
+import type { Product } from "../types";
+import { store } from "../services/storeService";
+import { router } from "../router/routerService";
 
 interface ProductCardProps {
   product: Product;
@@ -166,14 +167,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </div>
             <button
               onClick={handleQuickBid}
-              className="bg-background hover:bg-primary hover:text-white border border-border-main hover:border-primary p-2 rounded-xl transition-all"
+              className="bg-background hover:bg-primary text-black hover:text-white border border-border-main hover:border-primary p-2 rounded-xl transition-all"
             >
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                strokeWidth={2.5}
+                strokeWidth={2}
               >
                 <path
                   strokeLinecap="round"

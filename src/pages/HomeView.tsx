@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useStore } from '../../store';
-import { ProductCard } from '../ProductCard';
-import { Hero } from '../Hero';
-import { FilterBar } from '../FilterBar';
-import { Pagination } from '../Pagination';
+import { useStore } from '../hooks/useStore';
+import { ProductCard } from '../components/ProductCard';
+import { Hero } from '../components/Hero';
+import { FilterBar } from '../components/FilterBar';
+import { Pagination } from '../components/Pagination';
 
 export const HomeView: React.FC = () => {
     const { products } = useStore();

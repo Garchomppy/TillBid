@@ -1,8 +1,9 @@
 import React from 'react';
-import { router } from '../router';
+import { router } from '../router/routerService';
+import { useRouter } from '../hooks/useRouter';
 
 export const BottomNavBar: React.FC = () => {
-    const { view } = router.useRouter();
+    const { view } = useRouter();
 
     const navItems = [
         { id: 'home', label: 'Trang chủ', icon: (

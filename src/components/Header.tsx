@@ -1,6 +1,6 @@
-import React from "react";
-import { useStore, store } from "../store";
-import { router } from "../router";
+import { useStore } from "../hooks/useStore";
+import { store } from "../services/storeService";
+import { router } from "../router/routerService";
 
 export const Header: React.FC = () => {
   const { currentUser } = useStore();

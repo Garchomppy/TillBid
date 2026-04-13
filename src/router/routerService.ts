@@ -1,19 +1,4 @@
-import { useSyncExternalStore } from "react";
-
-export type View =
-  | "home"
-  | "product"
-  | "post"
-  | "profile"
-  | "live"
-  | "flash"
-  | "shop"
-  | "login";
-
-interface RouterState {
-  view: View;
-  params: Record<string, string>;
-}
+import type { View, RouterState } from '../types';
 
 class Router {
   private currentView: View = "home";
@@ -45,9 +30,7 @@ class Router {
     this.currentView = nextView;
     this.currentParams = nextParams;
 
-    // Cache the snapshot to avoid infinite loops in useSyncExternalStore
     this.snapshot = { view: this.currentView, params: this.currentParams };
-
     this.notify();
   }
 
@@ -75,10 +58,6 @@ class Router {
   getView = () => {
     return this.snapshot;
   };
-
-  useRouter() {
-    return useSyncExternalStore(this.subscribe, this.getView);
-  }
 }
 
 export const router = new Router();

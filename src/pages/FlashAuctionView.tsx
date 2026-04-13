@@ -1,6 +1,6 @@
 import React from 'react';
-import { useStore } from '../../store';
-import { ProductCard } from '../ProductCard';
+import { useStore } from '../hooks/useStore';
+import { ProductCard } from '../components/ProductCard';
 
 export const FlashAuctionView: React.FC = () => {
     const { products } = useStore();

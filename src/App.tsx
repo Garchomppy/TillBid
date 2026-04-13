@@ -1,19 +1,19 @@
 import React from "react";
-import { router } from "./router";
 import { Header } from "./components/Header";
 import { NotificationToast } from "./components/NotificationToast";
-import { HomeView } from "./components/views/HomeView";
-import { ProductDetailView } from "./components/views/ProductDetailView";
-import { PostItemView } from "./components/views/PostItemView";
-import { ProfileView } from "./components/views/ProfileView";
-import { LoginView } from "./components/views/LoginView";
-import { LiveAuctionView } from "./components/views/LiveAuctionView";
-import { FlashAuctionView } from "./components/views/FlashAuctionView";
-import { ShopProfileView } from "./components/views/ShopProfileView";
+import { HomeView } from "./pages/HomeView";
+import { ProductDetailView } from "./pages/ProductDetailView";
+import { PostItemView } from "./pages/PostItemView";
+import { ProfileView } from "./pages/ProfileView";
+import { LoginView } from "./pages/LoginView";
+import { LiveAuctionView } from "./pages/LiveAuctionView";
+import { FlashAuctionView } from "./pages/FlashAuctionView";
+import { ShopProfileView } from "./pages/ShopProfileView";
 import { BottomNavBar } from "./components/BottomNavBar";
+import { useRouter } from "./hooks/useRouter";
 
 const App: React.FC = () => {
-  const { view, params } = router.useRouter();
+  const { view, params } = useRouter();
 
   const renderContent = () => {
     switch (view) {

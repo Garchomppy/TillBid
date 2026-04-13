@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { store } from '../../store';
-import { router } from '../../router';
+import { store } from '../services/storeService';
+import { router } from '../router/routerService';
 
 export const LoginView: React.FC = () => {
     const [isLogin, setIsLogin] = useState(true);
