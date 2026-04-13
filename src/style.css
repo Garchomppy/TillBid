@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ec4899;
+  --color-secondary: #14b8a6;
+  --color-accent: #7c3aed;
+  --color-background: #fdf6fb;
+  --color-surface: #ffffff;
+  --color-text-main: #3d2c4e;
+  --color-text-muted: #9d7bb0;
+  --color-border-main: #f3d6eb;
+}
+
+@layer base {
+  :root {
+    --safe-area-inset-bottom: env(safe-area-inset-bottom);
+  }
+
+  html, body {
+    @apply h-full overflow-x-hidden;
+    /* Prevent pull-to-refresh if needed, but here we want momentum scroll */
+    overscroll-behavior-y: none;
+  }
+
+  body {
+    @apply bg-background text-text-main font-['Inter',sans-serif];
+    -webkit-font-smoothing: antialiased;
+    /* Handle mobile safe areas */
+    padding-bottom: var(--safe-area-inset-bottom);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-['Montserrat',sans-serif] font-black tracking-tight;
+  }
+}
+
+@utility glass {
+  @apply bg-white/60 backdrop-blur-2xl border border-white/40;
+}
+
+@utility glass-card {
+  @apply bg-white border border-border-main shadow-[0_4px_24px_rgba(236,72,153,0.06)] rounded-[32px] overflow-hidden transition-all duration-300;
+}
+
+@utility glass-card-hover {
+  @apply hover:shadow-[0_8px_32px_rgba(236,72,153,0.12)] hover:-translate-y-1;
+}
+
+@utility btn-primary {
+  @apply bg-gradient-to-r from-primary to-secondary text-white font-black px-6 py-3 rounded-full 
+         hover:shadow-[0_6px_20px_rgba(236,72,153,0.3)] hover:-translate-y-0.5 active:translate-y-0
+         transition-all duration-200 cursor-pointer text-center;
+}
+
+/* Pro Max Animations */
+@utility animate-blob {
+  animation: blob 7s infinite;
+}
+
+@utility animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@utility animation-delay-1000 {
+  animation-delay: 1s;
+}
+
+@utility animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-background;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-border-main rounded-full border-2 border-background;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary/40;
+}
