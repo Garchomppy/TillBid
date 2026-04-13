@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { store, useStore } from '../../store';
 import { router } from '../../router';
+import { VerifiedBadge } from '../VerifiedBadge';
 
 interface ProductDetailProps {
     id?: string;
@@ -116,9 +117,7 @@ export const ProductDetailView: React.FC<ProductDetailProps> = ({ id }) => {
                         <div className="flex-1">
                             <div className="font-black text-text-main text-xl flex items-center gap-2">
                                 {product.sellerId}
-                                <svg className="w-5 h-5 text-secondary" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z" />
-                                </svg>
+                                <VerifiedBadge size="w-5 h-5" />
                             </div>
                             <div className="text-sm font-bold text-text-muted flex items-center gap-1.5 mt-1">
                                 <svg className="w-3.5 h-3.5 text-secondary" fill="currentColor" viewBox="0 0 24 24">
