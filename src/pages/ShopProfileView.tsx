@@ -12,7 +12,7 @@ export const ShopProfileView: React.FC<ShopProfileProps> = ({ sellerId }) => {
     const sellerProducts = products.filter(p => p.sellerId === sellerId);
 
     return (
-        <div className="max-w-7xl mx-auto py-32 px-4 h-full">
+        <div className="max-w-7xl mx-auto pt-8 pb-32 lg:py-32 px-4 h-full">
             <div className="glass-card p-10 mb-12 flex flex-col md:flex-row gap-10 items-center bg-gradient-to-br from-white to-primary/5">
                 <div className="relative group shrink-0">
                     <img 

@@ -107,7 +107,7 @@ export const ProductDetailView: React.FC<ProductDetailProps> = ({ id }) => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-32 px-4 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="max-w-7xl mx-auto pt-8 pb-32 lg:py-32 px-4 shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
       <button
         onClick={() => router.navigate("home")}
         className="group text-text-muted font-black text-xs uppercase tracking-widest mb-12 flex items-center gap-2 hover:text-primary transition-all"

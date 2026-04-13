@@ -140,7 +140,7 @@ export const LiveAuctionView: React.FC = () => {
     isFinished && product.highestBidderId === currentUser?.id;
 
   return (
-    <div className="max-w-7xl mx-auto py-32 px-4 h-full relative">
+    <div className="max-w-7xl mx-auto pt-8 pb-32 lg:py-32 px-4 h-full relative">
       {/* Winner Overlay */}
       {isFinished && (
         <div className="absolute inset-0 z-50 flex items-center justify-center p-4 rounded-[40px] backdrop-blur-md bg-black/60">

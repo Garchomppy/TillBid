@@ -48,7 +48,7 @@ export const LoginView: React.FC = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto py-32 px-4 h-full flex items-center justify-center min-h-[80vh]">
+        <div className="max-w-7xl mx-auto pt-8 pb-32 lg:py-32 px-4 h-full flex items-center justify-center min-h-[80vh]">
             <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-primary/10 blur-[120px] rounded-full animate-blob" />
             <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-secondary/10 blur-[120px] rounded-full animate-blob animation-delay-2000" />
 

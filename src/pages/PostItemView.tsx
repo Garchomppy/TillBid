@@ -32,7 +32,7 @@ export const PostItemView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-32 px-4 h-full">
+    <div className="max-w-7xl mx-auto pt-8 pb-32 lg:py-32 px-4 h-full">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-black text-text-main mb-4">

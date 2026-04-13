@@ -78,7 +78,7 @@ export const ProfileView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-32 px-4 h-full">
+    <div className="max-w-7xl mx-auto pt-8 pb-32 lg:py-32 px-4 h-full">
       <div className="flex flex-col lg:grid lg:grid-cols-3 gap-10">
         {/* Profile Header Card */}
         <div className="glass-card p-10 lg:col-span-1 bg-gradient-to-br from-white to-primary/5">

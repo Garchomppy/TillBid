@@ -7,7 +7,7 @@ export const FlashAuctionView: React.FC = () => {
     const flashProducts = products.filter(p => p.badge === 'ending' || p.watchlistCount > 20);
 
     return (
-        <div className="max-w-7xl mx-auto py-32 px-4 h-full">
+        <div className="max-w-7xl mx-auto pt-8 pb-32 lg:py-32 px-4 h-full">
             <div className="flex flex-col md:flex-row items-baseline gap-6 mb-12">
                 <h2 className="text-4xl font-black italic text-text-main flex items-center gap-3">
                     <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary">
