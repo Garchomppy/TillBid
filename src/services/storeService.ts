@@ -1,4 +1,4 @@
-import type { AppState, User, Product } from "../types";
+import type { AppState, User, Product, SellerReview } from "../types";
 
 class Store {
   private state: AppState = {
@@ -6,6 +6,7 @@ class Store {
     products: [],
     transactions: [],
     notifications: [],
+    sellerReviews: [],
   };
 
   private listeners: (() => void)[] = [];
@@ -15,9 +16,13 @@ class Store {
   }
 
   private loadInitialData() {
-    const saved = localStorage.getItem("tillbid_state_v4");
+    const saved = localStorage.getItem("tillbid_state_v5");
     if (saved) {
-      this.state = JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      this.state = {
+        ...parsed,
+        sellerReviews: parsed.sellerReviews || [],
+      };
     } else {
       this.state = {
         currentUser: {
@@ -49,6 +54,14 @@ class Store {
             description:
               "Leica M6 Classic bản Silver cực hiếm. Máy hoạt động hoàn hảo, đo sáng chuẩn, view sáng rõ. Kèm bao da và dây đeo zin. Tuyệt phẩm cho người sưu tầm.",
             badge: "hot",
+            specs: {
+              brand: "Leica",
+              color: "Silver",
+              material: "Hợp kim nhôm & titan",
+              measurements: "138 x 77 x 34mm",
+              defects: "Không"
+            },
+            detailedDescription: "Máy ảnh Leica M6 Classic hoạt động hoàn hảo, view sáng rõ, đo sáng chuẩn xác. Thân máy bạc silver rất hiếm. Pin vừa thay mới. Kèm bao da zin, dây đeo da bò cao cấp. Đã qua kiểm định chuyên gia. Bảo hành 12 tháng."
           },
           {
             id: "p1",
@@ -71,6 +84,14 @@ class Store {
             tags: ["Thời trang", "Như mới"],
             badge: "hot",
             highestBidderId: "u2",
+            specs: {
+              brand: "Zara",
+              size: "M",
+              color: "Trắng",
+              material: "100% Linen",
+              defects: "Không"
+            },
+            detailedDescription: "Áo Zara linen trắng cao cấp, mua tại store Hà Nội tháng 5/2023. Mặc 2 lần, còn tag zin. Chất liệu linen mềm mại, thoáng mát. Không có lỗi, không dơ, không phai màu. Giặt ướt với nước lạnh, phơi ngoài trời. Hàng chính hãng 100%."
           },
           {
             id: "p2",
@@ -90,6 +111,14 @@ class Store {
             tags: ["Công nghệ", "Tốt"],
             badge: "ending",
             highestBidderId: "u3",
+            specs: {
+              brand: "Apple",
+              color: "Xanh Sierra",
+              material: "Inox + Ceramic Shield",
+              measurements: "203.5 x 75.7 x 7.65mm",
+              defects: "Loa ngoài rè nhẹ, pin 87%"
+            },
+            detailedDescription: "iPhone 13 Pro 256GB màu Xanh Sierra mua 12/2021, sử dụng khoảng 18 tháng. Pin 87%, không trầy xước vỏ ngoài. Hệ thống camera hoạt động tốt, màn hình sáng rõ không chấm. Lỗi nhỏ: loa ngoài đôi khi rè nhẹ khi volume 100%. Có hộp, cáp zin, manual."
           },
           {
             id: "p3",
@@ -112,6 +141,14 @@ class Store {
             tags: ["Túi xách", "Như mới"],
             badge: "hot",
             highestBidderId: "u4",
+            specs: {
+              brand: "Coach",
+              color: "Kem (Ivory)",
+              material: "Leather Pebbled",
+              measurements: "26 x 18 x 12cm",
+              defects: "Không"
+            },
+            detailedDescription: "Túi Coach Tabby 26 chính hãng mua tại Singapore 2023. Dùng 3 lần, còn box, dustbag và thẻ Coach. Chất liệu da tự nhiên mềm mịn, khoá từ, khóa kéo suôn mượt. Không có vết bề mặt, không dơ bền. Bộ sưu tập cao cấp."
           },
           {
             id: "p4",
@@ -134,6 +171,14 @@ class Store {
             tags: ["Mỹ phẩm", "Như mới"],
             badge: "new",
             highestBidderId: "u5",
+            specs: {
+              brand: "MAC",
+              color: "Ruby Woo (đỏ tươi)",
+              material: "Lipstick Retro Matte",
+              measurements: "Tube 3g + Liner",
+              defects: "Không"
+            },
+            detailedDescription: "Son MAC Ruby Woo chính hãng từ Mỹ, độc quyền Retro Matte finish. Dùng 2 lần, còn 95% lượng son. Không có lỗi, mở nắp chưa. Kèm theo MAC Lip Liner Ruby Woo 100% mới, chưa dùng. Đã khử trùng bằng cồn 70%. Hàng chính hãng."
           },
           {
             id: "p5",
@@ -148,11 +193,19 @@ class Store {
             endTime: Date.now() + 14400 * 1000,
             status: "active",
             watchlistCount: 15,
+            specs: {
+              brand: "Nike",
+              size: "38 (US 7.5)",
+              color: "Trắng",
+              material: "Leather + Canvas",
+              defects: "Hơi bẩn ở cổ giày, đế còn tốt"
+            },
             description:
               "Nike AF1 mua tại Foot Locker. Đi khoảng 10 lần. Đế còn tốt, có vài vết bẩn nhỏ đã vệ sinh.",
             tags: ["Giày dép", "Tốt"],
             badge: "hot",
             highestBidderId: "u6",
+            detailedDescription: "Giày Nike Air Force 1 size 38 (US 7.5) màu trắng chính hãng, mua tại Foot Locker năm 2022. Đi khoảng 10 lần, đế còn rất tốt, chưa bê bối. Phần thân giày có vài vết bẩn nhỏ đã vệ sinh sạch sẽ bằng giấy ẩm. Dây giày còn nguyên, không rách. Box còn, lót giày nguyên bản. Phù hợp để sưu tập hoặc sử dụng tiếp."
           },
           {
             id: "p6",
@@ -171,6 +224,14 @@ class Store {
             description:
               "MacBook Air M2 màu Midnight đẹp không tì vết. Sạc mới 15 lần. Bảo hành chính hãng 6 tháng.",
             badge: "hot",
+            specs: {
+              brand: "Apple",
+              color: "Midnight (Đen)",
+              material: "Aluminum Unibody",
+              measurements: "304.1 x 212.4 x 15.3mm",
+              defects: "Không"
+            },
+            detailedDescription: "MacBook Air M2 8GB / 256GB màu Midnight hoàn toàn mới, chưa sử dụng thực tế - mua để test chỉ bật từ 5-6 lần. Màn hình Retina 13.6 inch sáng rõ, không chi phí. Chip M2 hoạt động mượt mà, không bị lag. Pin full health 100%. Sạc bộ 20W còn như mới. Bảo hành chính hãng noch 6 tháng. Box zin đầy đủ, tất cả cáp kèm theo."
           },
           {
             id: "p7",
@@ -187,8 +248,16 @@ class Store {
             highestBidderId: null,
             watchlistCount: 56,
             description:
-              "Túi LV Neverfull chính hãng, có hóa đơn. Da có chút ngả màu tự nhiên của dòng Monogram. İç sạch sẽ.",
+              "Túi LV Neverfull chính hãng, có hóa đơn. Da có chút ngả màu tự nhiên của dòng Monogram. Ịcc sạch sẽ.",
             badge: "ending",
+            specs: {
+              brand: "Louis Vuitton",
+              color: "Monogram Canvas - Brown",
+              material: "Canvas Monogram + Vachetta Leather",
+              measurements: "41 x 29 x 20cm (MM)",
+              defects: "Da ngả màu tự nhiên, canvas còn sáng"
+            },
+            detailedDescription: "Túi Louis Vuitton Neverfull MM chính hãng 100%, có hóa đơn mua tại boutique LV Paris 2018. Sử dụng 2 năm, da Monogram ngả màu tự nhiên đẹp (patina). Lót canvas vẫn sáng, khoá LV chắc chắn. Có móc khóa nắp chỉ LV. Không bao giờ mang dưới mưa, bảo quản kỹ lưỡng. Cổ điển không lỗi mốt. Box zin, dustbag, receipt còn."
           },
           {
             id: "p8",
@@ -210,6 +279,14 @@ class Store {
             description:
               "Adidas Samba OG Size 40. Full box, chưa xỏ chân. Mua tại store Nhật.",
             badge: "new",
+            specs: {
+              brand: "Adidas",
+              size: "40 (EU)",
+              color: "Cloud White",
+              material: "Leather + Gum Sole",
+              defects: "Không"
+            },
+            detailedDescription: "Giày Adidas Samba OG Cloud White size 40 chính hãng, mua tại store Adidas Nhật Bản 2024. Chưa xỏ chân lần nào, đúng như mới. Box zin nguyên bản còn các thẻ-tag. Đế gum tương tự classical vô cùng rắp côi. Mềm dễda, trắn dễ. Phù hợp để hàng ngày hoặc sưu tập.",
           },
           {
             id: "p9",
@@ -230,6 +307,14 @@ class Store {
             watchlistCount: 14,
             description:
               "Chanel Bleu EDP 100ml còn khoảng 85ml. Cam kết 100% original. Mùi hương nam tính quyến rũ.",
+            specs: {
+              brand: "Chanel",
+              color: "Bleu (Xanh)",
+              material: "Eau de Parfum",
+              measurements: "100ml bottle",
+              defects: "Không"
+            },
+            detailedDescription: "Nước hoa Chanel Bleu de Chanel EDP 100ml chính hãng 100%, mua tại boutique Chanel. Sử dụng thường xuyên, còn khoảng 85ml. Giới hạn 15ml. Mùi hương nam tính toàn đời, dễ kết hợp với quần áo hiện đại hoặc sang trọng. Quế che chìm lâu 4-6 giờ. Hộp và quế in đủ công từ Chanel. Hơi ngày để giao dịch.",
           },
           {
             id: "p10",
@@ -250,6 +335,14 @@ class Store {
             watchlistCount: 22,
             description:
               "Váy lụa bóng thiết kế cao cấp, mặc chụp ảnh 1 lần. Size S (45-50kg) cực tôn dáng.",
+            specs: {
+              brand: "Design Handmade",
+              size: "S",
+              color: "Champagne (Vàng nhẹ)",
+              material: "100% Silk",
+              defects: "Không"
+            },
+            detailedDescription: "Váy lụa bóng thiết kế cao cấp màu Champagne tinh tế, mặc chụp ảnh 1 lần chỉ. Size S (45-50kg) cực tôn dáng, làm nổi bật vòng eo. Chất lụa mềm mịn, rơi tự nhiên rất đẹp. Đo vòng bụng 68-72cm, dài cỡ model 167cm là 105cm. Zip sau lưng, ngoặc nhỏ gọn. Không có lỗi, không xấu. Perfect cho pre-wedding hoặc sự kiện đặc biệt. Hạn chế, độc lập thiết kế.",
           },
         ],
         transactions: [
@@ -288,13 +381,42 @@ class Store {
           },
         ],
         notifications: [],
+        sellerReviews: [
+          {
+            id: "r1",
+            sellerId: "Đức Hiếu",
+            buyerId: "u2",
+            buyerName: "Hải Dương",
+            rating: 5,
+            comment: "Sản phẩm đúng như mô tả, ngon lắm. Giao hàng nhanh.",
+            timestamp: Date.now() - 86400000,
+          },
+          {
+            id: "r2",
+            sellerId: "Đức Hiếu",
+            buyerId: "u3",
+            buyerName: "Linh Chi",
+            rating: 5,
+            comment: "Tuyệt vời! Rất hài lòng. Sẽ mua lại lần tiếp theo.",
+            timestamp: Date.now() - 172800000,
+          },
+          {
+            id: "r3",
+            sellerId: "Minh Châu",
+            buyerId: "u1",
+            buyerName: "Kiên",
+            rating: 4,
+            comment: "Tốt, nhưng giao hàng hơi muộn một chút.",
+            timestamp: Date.now() - 259200000,
+          },
+        ],
       };
       this.save();
     }
   }
 
   private save() {
-    localStorage.setItem("tillbid_state_v4", JSON.stringify(this.state));
+    localStorage.setItem("tillbid_state_v5", JSON.stringify(this.state));
     this.notify();
   }
 
@@ -776,6 +898,43 @@ class Store {
       15000 + Math.random() * 10000,
     );
   }
+
+  addSellerReview(sellerId: string, rating: number, comment: string) {
+    if (!this.state.currentUser) {
+      this.addNotification("Vui lòng đăng nhập để đánh giá!", "warning");
+      return;
+    }
+
+    const review: SellerReview = {
+      id: "r" + Math.random().toString(36).substr(2, 9),
+      sellerId,
+      buyerId: this.state.currentUser.id,
+      buyerName: this.state.currentUser.name,
+      rating: Math.max(1, Math.min(5, rating)),
+      comment,
+      timestamp: Date.now(),
+    };
+
+    this.state = {
+      ...this.state,
+      sellerReviews: [...this.state.sellerReviews, review],
+    };
+    this.addNotification("Đánh giá của bạn đã được lưu!", "success");
+    this.save();
+  }
+
+  getSellerReviews(sellerId: string): SellerReview[] {
+    return this.state.sellerReviews.filter((r) => r.sellerId === sellerId);
+  }
+
+  getSellerAverageRating(sellerId: string): number {
+    const reviews = this.getSellerReviews(sellerId);
+    if (reviews.length === 0) return 0;
+    return (
+      reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    );
+  }
+
 }
 
 export const store = new Store();

@@ -1,15 +1,18 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useStore } from '../hooks/useStore';
+import { router } from '../router/routerService';
 import { ProductCard } from '../components/ProductCard';
 import { Hero } from '../components/Hero';
 import { FilterBar } from '../components/FilterBar';
 import { Pagination } from '../components/Pagination';
+import { TOP_USERS } from '../data/topUsers';
 
 export const HomeView: React.FC = () => {
     const { products } = useStore();
     const [activeSort, setActiveSort] = useState('hot');
     const [activeCategory, setActiveCategory] = useState('Tất cả');
     const [currentPage, setCurrentPage] = useState(1);
+    const [leaderboardScroll, setLeaderboardScroll] = useState(0);
     const itemsPerPage = 8; // Show 8 products per page for a balanced grid
 
     // Reset to page 1 when filters change
@@ -104,7 +107,138 @@ export const HomeView: React.FC = () => {
                 )}
             </div>
 
-            {/* How it works section */}
+            {/* Reputation Ranking Section */}
+            <section className="max-w-7xl mx-auto px-4 mt-32 mb-32">
+                <div className="text-center mb-16">
+                    <h2 className="text-4xl font-black text-text-main mb-4">🏆 Bảng Xếp Hạng Uy Tín</h2>
+                    <p className="text-text-muted max-w-2xl mx-auto font-medium">Những người bán hàng được tin cậy nhất trên TillBid - với điểm uy tín cao và nhiều giao dịch thành công.</p>
+                </div>
+
+                <div className="relative px-12">
+                    {/* Scroll Container */}
+                    <div 
+                        id="leaderboardScroll"
+                        className="flex gap-6 overflow-x-auto scroll-smooth pb-4 pt-4 no-scrollbar snap-x snap-mandatory"
+                        onScroll={(e) => setLeaderboardScroll((e.target as HTMLDivElement).scrollLeft)}
+                    >   
+                        {TOP_USERS.map((user) => {
+                            const getRankColor = (rank: number) => {
+                                if (rank === 1) return 'bg-gradient-to-br from-amber-50 to-amber-100 border-amber-300 hover:shadow-2xl hover:shadow-amber-300/30';
+                                if (rank === 2) return 'bg-gradient-to-br from-slate-50 to-slate-100 border-slate-300 hover:shadow-2xl hover:shadow-slate-300/30';
+                                if (rank === 3) return 'bg-gradient-to-br from-orange-50 to-orange-100 border-orange-300 hover:shadow-2xl hover:shadow-orange-300/30';
+                                return 'bg-gradient-to-br from-white to-background border-border-main hover:shadow-xl hover:shadow-primary/20';
+                            };
+
+                            const getRankBadgeColor = (rank: number) => {
+                                if (rank === 1) return 'bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-500/40';
+                                if (rank === 2) return 'bg-gradient-to-br from-slate-300 to-slate-500 shadow-lg shadow-slate-400/40';
+                                if (rank === 3) return 'bg-gradient-to-br from-orange-400 to-orange-600 shadow-lg shadow-orange-500/40';
+                                return 'bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/40';
+                            };
+
+                            const getRankIcon = (rank: number) => {
+                                if (rank === 1) return '1st';
+                                if (rank === 2) return '2nd';
+                                if (rank === 3) return '3rd';
+                                return rank.toString();
+                            };
+
+                            return (
+                                <div
+                                    key={user.id}
+                                    className={`relative p-8 rounded-[32px] border-2 text-center transition-all hover:-translate-y-3 group cursor-pointer flex-shrink-0 w-full sm:w-80 snap-center duration-300 ${getRankColor(user.rank)}`}
+                                >
+                                    {/* Rank Badge with Shine Effect */}
+                                    <div className={`absolute -top-4 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full flex items-center justify-center font-black text-white text-sm shadow-lg transition-transform group-hover:scale-110 group-hover:rotate-12 duration-300 ${getRankBadgeColor(user.rank)}`}>
+                                        <span className="relative">
+                                            {getRankIcon(user.rank)}
+                                            {user.rank <= 3 && (
+                                                <div className="absolute inset-0 rounded-full bg-white/20 blur-sm animate-pulse"></div>
+                                            )}
+                                        </span>
+                                    </div>
+
+                                    {/* Avatar */}
+                                    <img 
+                                        src={user.avatar} 
+                                        alt={user.name} 
+                                        className="w-16 h-16 rounded-full mx-auto mb-4 border-4 border-white shadow-md group-hover:scale-110 transition-transform duration-300" 
+                                    />
+
+                                    {/* Name with Badge */}
+                                    <div className="font-black text-text-main mb-2 line-clamp-2 flex items-center justify-center gap-2 group-hover:text-primary transition-colors duration-200">
+                                        <span className="truncate">{user.name}</span>
+                                        {user.isVerified && (
+                                            <svg className="w-5 h-5 text-secondary flex-shrink-0 group-hover:scale-125 transition-transform duration-300" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                            </svg>
+                                        )}
+                                    </div>
+
+                                    {/* Score */}
+                                    <div className="flex items-center justify-center gap-1.5 mb-3 text-sm font-black text-text-main">
+                                        <svg className="w-4 h-4 text-secondary" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                        </svg>
+                                        <span className="tracking-tight">{user.reputation}</span>
+                                    </div>
+
+                                    {/* Divider */}
+                                    <div className="h-px bg-gradient-to-r from-transparent via-text-muted/20 to-transparent mb-3"></div>
+
+                                    {/* Transactions */}
+                                    <div className="text-[11px] text-text-muted font-bold mb-2">
+                                        💼 {user.successfulTransactions} giao dịch
+                                    </div>
+
+                                    {/* Followers */}
+                                    <div className="text-[11px] font-bold text-primary mb-4">
+                                        👥 {user.followers} người theo dõi
+                                    </div>
+
+                                    {/* View Shop Button */}
+                                    <button 
+                                        onClick={() => router.navigate('shop', { id: user.name })}
+                                        className="w-full bg-primary/10 hover:bg-primary hover:text-white text-primary font-black px-4 py-2.5 rounded-[16px] transition-all text-sm duration-200 hover:shadow-lg group-hover:scale-100 active:scale-95"
+                                    >
+                                        Xem Shop
+                                    </button>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Scroll Indicators */}
+                    {leaderboardScroll > 0 && (
+                        <button
+                            onClick={() => {
+                                const container = document.getElementById('leaderboardScroll');
+                                if (container) container.scrollBy({ left: -320, behavior: 'smooth' });
+                            }}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:bg-primary hover:text-white transition-all duration-200 z-10 cursor-pointer active:scale-95"
+                            aria-label="Scroll left"
+                        >
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                    )}
+                    {leaderboardScroll < ((TOP_USERS.length - 3) * 320) && (
+                        <button
+                            onClick={() => {
+                                const container = document.getElementById('leaderboardScroll');
+                                if (container) container.scrollBy({ left: 320, behavior: 'smooth' });
+                            }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:bg-primary hover:text-white transition-all duration-200 z-10 cursor-pointer active:scale-95"
+                            aria-label="Scroll right"
+                        >
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    )}
+                </div>
+            </section>
             <section className="max-w-7xl mx-auto px-4 mt-32">
                 <div className="text-center mb-16">
                     <h2 className="text-4xl font-black text-text-main mb-4">Cách hoạt động</h2>

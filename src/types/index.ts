@@ -42,6 +42,15 @@ export interface Product {
     images: string[];
     tags?: string[];
     badge?: string;
+    specs?: {
+        size?: string;
+        color?: string;
+        material?: string;
+        measurements?: string;
+        defects?: string;
+        brand?: string;
+    };
+    detailedDescription?: string;
 }
 
 export interface Transaction {
@@ -63,9 +72,20 @@ export interface Notification {
     timestamp: number;
 }
 
+export interface SellerReview {
+    id: string;
+    sellerId: string;
+    buyerId: string;
+    buyerName: string;
+    rating: number;
+    comment: string;
+    timestamp: number;
+}
+
 export interface AppState {
     currentUser: User | null;
     products: Product[];
     transactions: Transaction[];
     notifications: Notification[];
+    sellerReviews: SellerReview[];
 }

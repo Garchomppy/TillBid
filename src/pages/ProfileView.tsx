@@ -69,12 +69,18 @@ export const ProfileView: React.FC = () => {
     setAccountNumber("");
   };
 
-  const handleDeliveryConfirm = (_data: DeliveryData) => {
+  const handleDeliveryConfirm = (data: DeliveryData) => {
+    if (!selectedTx) return;
     store.addNotification(
-      `Thông tin nhận hàng cho "${selectedTx?.title || "Sản phẩm"}" đã được ghi nhận. Đang chuẩn bị giao hàng!`,
-      "success",
+      `Thông tin nhận hàng đã được ghi nhận. Đang chuẩn bị giao hàng!`,
+      "info",
     );
     setIsDeliveryOpen(false);
+    
+    // Automatically confirm receipt after delivery info is submitted
+    setTimeout(() => {
+      store.confirmReceipt(selectedTx.id);
+    }, 500);
   };
 
   return (
@@ -435,6 +441,17 @@ export const ProfileView: React.FC = () => {
                     Tải sao kê
                   </button>
                 </div>
+
+                {/* Escrow Explanation */}
+                <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 mb-8">
+                  <div className="font-black text-primary text-[11px] uppercase tracking-widest mb-2">💡 Cách hoạt động ví trung gian</div>
+                  <div className="text-sm text-text-main space-y-2">
+                    <p><strong>Khi đấu giá thành công:</strong> Tiền cọc tạm thời đóng băng trong ví (chưa trừ)</p>
+                    <p><strong>Khi xác nhận nhận hàng:</strong> Tiền sẽ bị trừ từ ví và chuyển đến người bán</p>
+                    <p><strong>Nếu không xác nhận:</strong> Tiền quay lại ví khả dụng sau 7 ngày</p>
+                  </div>
+                </div>
+
                 <div className="space-y-6">
                   {transactions.length === 0 ? (
                     <div className="py-20 text-center border-2 border-dashed border-border-main rounded-[32px]">
@@ -468,8 +485,8 @@ export const ProfileView: React.FC = () => {
                               }
                             >
                               {tx.status === "disbursed"
-                                ? " Hoàn tiền khả dụng"
-                                : " Đang đóng băng"}
+                                ? "✓ Đã chuyển cho người bán"
+                                : "🔒 Đang chờ xác nhận nhận hàng"}
                             </span>
                           </div>
                         </div>
@@ -482,23 +499,15 @@ export const ProfileView: React.FC = () => {
                           </div>
                           {tx.status === "frozen" &&
                             tx.buyerId === currentUser.id && (
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={() => {
-                                    setSelectedTx(tx);
-                                    setIsDeliveryOpen(true);
-                                  }}
-                                  className="bg-secondary text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
-                                >
-                                  Điền đơn hàng
-                                </button>
-                                <button
-                                  onClick={() => store.confirmReceipt(tx.id)}
-                                  className="bg-primary text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
-                                >
-                                  Xác nhận đã nhận hàng
-                                </button>
-                              </div>
+                              <button
+                                onClick={() => {
+                                  setSelectedTx(tx);
+                                  setIsDeliveryOpen(true);
+                                }}
+                                className="bg-primary text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                              >
+                                ✓ Xác nhận nhận hàng
+                              </button>
                             )}
                         </div>
                       </div>

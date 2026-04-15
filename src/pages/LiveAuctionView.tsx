@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useStore } from "../hooks/useStore";
 import { store } from "../services/storeService";
+import { formatPriceVN, formatQuickBidLabel } from "../utils";
 
 const MOCK_BOTS = [
   "Hồng Quân",
@@ -156,9 +157,9 @@ export const LiveAuctionView: React.FC = () => {
             <p className="text-text-muted font-bold mb-8">
               {isUserWinner
                 ? "Sản phẩm đã thuộc về bạn với mức giá " +
-                  product.currentPrice.toLocaleString() +
-                  "đ. Số tiền cọc sẽ được giữ hộ để hoàn tất giao dịch."
-                : `Bạn đã trượt mất cơ hội. Sản phẩm về tay ${getLeaderName()} với giá ${product.currentPrice.toLocaleString()}đ.`}
+                  formatPriceVN(product.currentPrice) +
+                  ". Số tiền cọc sẽ được giữ hộ để hoàn tất giao dịch."
+                : `Bạn đã trượt mất cơ hội. Sản phẩm về tay ${getLeaderName()} với giá ${formatPriceVN(product.currentPrice)}.`}
             </p>
             {isUserWinner && (
               <button
@@ -255,7 +256,7 @@ export const LiveAuctionView: React.FC = () => {
               className="text-5xl font-black text-primary my-4 tracking-tighter"
               key={product.currentPrice}
             >
-              {product.currentPrice.toLocaleString()}đ
+              {formatPriceVN(product.currentPrice)}
             </div>
 
             <div className="flex items-center gap-3 bg-white/50 p-4 rounded-2xl border border-white">
@@ -288,28 +289,29 @@ export const LiveAuctionView: React.FC = () => {
           </div>
 
           {/* Quick Bid Controls */}
-          <div className="grid grid-cols-3 gap-3">
-            <button
-              disabled={isFinished}
-              onClick={() => handleQuickBid(500000)}
-              className="bg-white hover:bg-primary hover:text-white disabled:opacity-50 border border-border-main py-4 rounded-2xl text-[13px] font-black transition-all shadow-sm"
-            >
-              +500k
-            </button>
-            <button
-              disabled={isFinished}
-              onClick={() => handleQuickBid(1000000)}
-              className="bg-white hover:bg-primary hover:text-white disabled:opacity-50 border border-border-main py-4 rounded-2xl text-[13px] font-black transition-all shadow-sm"
-            >
-              +1tr
-            </button>
-            <button
-              disabled={isFinished}
-              onClick={() => handleQuickBid(2000000)}
-              className="bg-white hover:bg-primary hover:text-white disabled:opacity-50 border border-border-main py-4 rounded-2xl text-[13px] font-black transition-all shadow-sm"
-            >
-              +2tr
-            </button>
+          <div>
+            <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2">
+              Đặt giá nhanh
+            </div>
+            <div className="grid grid-cols-3 gap-2 ">
+              {[
+                { increment: 50000 },
+                { increment: 100000 },
+                { increment: 200000 },
+                { increment: 500000 },
+                { increment: 1000000 },
+                { increment: 2000000 },
+              ].map(({ increment }) => (
+                <button
+                  key={increment}
+                  disabled={isFinished}
+                  onClick={() => handleQuickBid(increment)}
+                  className="bg-white text-black hover:bg-primary hover:text-white disabled:opacity-40 border border-border-main py-3 rounded-2xl text-[11px] font-black transition-all shadow-sm hover:shadow-md hover:shadow-primary/20 active:scale-95"
+                >
+                  {formatQuickBidLabel(increment)}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Bid History Log */}
@@ -341,7 +343,7 @@ export const LiveAuctionView: React.FC = () => {
                   <div
                     className={`font-black text-lg ${log.isMe ? "text-primary" : "text-text-main"}`}
                   >
-                    {log.amount.toLocaleString()}đ
+                    {formatPriceVN(log.amount)}
                   </div>
                 </div>
               ))}

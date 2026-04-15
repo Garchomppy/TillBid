@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useStore } from "../hooks/useStore";
+import { useRouter } from "../hooks/useRouter";
 import { store } from "../services/storeService";
 import { router } from "../router/routerService";
 import { VerifiedBadge } from "../components/VerifiedBadge";
+import { formatPriceVN, formatQuickBidLabel } from "../utils";
 
 interface ProductDetailProps {
   id?: string;
@@ -10,8 +12,10 @@ interface ProductDetailProps {
 
 export const ProductDetailView: React.FC<ProductDetailProps> = ({ id }) => {
   const { products, currentUser } = useStore();
+  const routerState = useRouter();
+  const productId = routerState.params.id || id;
   const [bidAmount, setBidAmount] = useState<number>(0);
-  const product = products.find((p) => p.id === id);
+  const product = products.find((p) => p.id === productId);
 
   const [timeLeft, setTimeLeft] = useState(
     product
@@ -97,7 +101,7 @@ export const ProductDetailView: React.FC<ProductDetailProps> = ({ id }) => {
 
     if (currentUser.balance < bidAmount) {
       store.addNotification(
-        `Số dư ví không đủ! Cần thêm ${(bidAmount - currentUser.balance).toLocaleString()}đ`,
+        `Số dư ví không đủ! Cần thêm ${formatPriceVN(bidAmount - currentUser.balance)}`,
         "warning",
       );
       return;
@@ -138,8 +142,8 @@ export const ProductDetailView: React.FC<ProductDetailProps> = ({ id }) => {
             />
             <div className="absolute top-6 left-6 flex flex-col gap-2">
               {product.badge && (
-                <div className="bg-primary text-white px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl">
-                  {product.badge}e
+                <div className="bg-primary text-black px-5 py-2 rounded-full font-black text-[10px] uppercase tracking-widest shadow-xl">
+                  {product.badge}
                 </div>
               )}
             </div>
@@ -211,6 +215,64 @@ export const ProductDetailView: React.FC<ProductDetailProps> = ({ id }) => {
             </button>
           </div>
 
+          {/* Product Specifications Section */}
+          <div className="bg-background border border-border-main rounded-[32px] p-10 space-y-8">
+            <div>
+              <h3 className="text-2xl font-black text-text-main mb-6">ℹ️ Thông tin sản phẩm</h3>
+              <div className="grid grid-cols-2 md:grid-cols-2 gap-6 text-black">
+                {product.specs?.brand && (
+                  <div className="bg-white p-6 rounded-2xl border border-border-main hover:border-primary/30 transition-all">
+                    <div className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-2">Thương hiệu</div>
+                    <div className="font-black text-text-main text-lg">{product.specs.brand}</div>
+                  </div>
+                )}
+                {product.specs?.color && (
+                  <div className="bg-white p-6 rounded-2xl border border-border-main hover:border-primary/30 transition-all">
+                    <div className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-2">Màu sắc</div>
+                    <div className="font-black text-text-main text-lg">{product.specs.color}</div>
+                  </div>
+                )}
+                {product.specs?.size && (
+                  <div className="bg-white p-6 rounded-2xl border border-border-main hover:border-primary/30 transition-all">
+                    <div className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-2">Kích cỡ</div>
+                    <div className="font-black text-text-main text-lg">{product.specs.size}</div>
+                  </div>
+                )}
+                {product.specs?.material && (
+                  <div className="bg-white p-6 rounded-2xl border border-border-main hover:border-primary/30 transition-all">
+                    <div className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-2">Chất liệu</div>
+                    <div className="font-black text-text-main text-lg">{product.specs.material}</div>
+                  </div>
+                )}
+                {product.specs?.measurements && (
+                  <div className="bg-white p-6 rounded-2xl border border-border-main hover:border-primary/30 transition-all">
+                    <div className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-2">Kích thước</div>
+                    <div className="font-black text-text-main text-lg">{product.specs.measurements}</div>
+                  </div>
+                )}
+                {product.specs?.defects && (
+                  <div className="bg-white p-6 rounded-2xl border border-border-main hover:border-primary/30 transition-all">
+                    <div className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-2">Lỗi / Hư hỏng</div>
+                    <div className="font-black text-text-main text-lg">{product.specs.defects}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Detailed Description */}
+            {product.detailedDescription && (
+              <div>
+                <h4 className="text-xl font-black text-text-main mb-4">📝 Mô tả chi tiết</h4>
+                <div className="bg-white p-8 rounded-2xl border border-border-main text-text-main leading-relaxed space-y-4">
+                  {product.detailedDescription.split('\n').map((line, i) => (
+                    line.trim() && <p key={i} className="font-medium">{line}</p>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Bid Section */}
           <div className="bg-text-main rounded-[40px] p-10 text-white relative overflow-hidden shadow-2xl">
             <div className="absolute top-0 right-0 w-48 h-48 bg-primary/20 blur-[80px] rounded-full" />
 
@@ -220,12 +282,12 @@ export const ProductDetailView: React.FC<ProductDetailProps> = ({ id }) => {
                   Giá hiện tại
                 </span>
                 <div className="text-5xl font-black text-primary tracking-tighter">
-                  {product.currentPrice.toLocaleString()}đ
+                  {formatPriceVN(product.currentPrice)}
                 </div>
-                <div className="flex items-center gap-2 mt-4 text-[11px] font-bold text-white/70">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  Người dẫn đầu:{" "}
-                  <span className="text-white font-black">
+                  <div className="flex items-center gap-2 mt-4 text-[11px] font-bold text-white/70">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    Người dẫn đầu:{" "}
+                    <span className="text-white font-black">
                     {product.highestBidderId
                       ? product.highestBidderId.startsWith("mock_")
                         ? product.highestBidderId.replace("mock_", "")
@@ -247,6 +309,24 @@ export const ProductDetailView: React.FC<ProductDetailProps> = ({ id }) => {
             </div>
 
             <div className="space-y-6 relative z-10">
+              {/* Quick Bid Buttons */}
+              <div>
+                <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3">
+                  Đặt giá nhanh
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {[50000, 100000, 200000, 500000].map((inc) => (
+                    <button
+                      key={inc}
+                      onClick={() => setBidAmount(product.currentPrice + inc)}
+                      className="bg-white/10 hover:bg-primary hover:text-white border border-white/15 hover:border-primary py-3 rounded-2xl text-[12px] font-black transition-all text-white/80 hover:shadow-lg hover:shadow-primary/30 active:scale-95"
+                    >
+                      {formatQuickBidLabel(inc)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="flex gap-4">
                 <div className="flex-1 relative">
                   <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/40 font-bold">
@@ -256,7 +336,7 @@ export const ProductDetailView: React.FC<ProductDetailProps> = ({ id }) => {
                     type="number"
                     value={bidAmount}
                     onChange={(e) => setBidAmount(Number(e.target.value))}
-                    className="w-full bg-white/10 border border-white/20 rounded-[24px] pl-12 pr-6 py-5 font-black text-2xl outline-none focus:border-primary focus:bg-white/20 transition-all text-white"
+                    className="w-full bg-white/10 border border-white/20 rounded-[24px] pl-12 pr-6 py-5 font-black text-2xl outline-none focus:border-primary focus:bg-white/20 transition-all text-white placeholder:text-white/40"
                   />
                 </div>
                 <button

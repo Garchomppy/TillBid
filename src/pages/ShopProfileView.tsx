@@ -1,15 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useStore } from '../hooks/useStore';
 import { ProductCard } from '../components/ProductCard';
 import { VerifiedBadge } from '../components/VerifiedBadge';
+import { store } from '../services/storeService';
 
 interface ShopProfileProps {
     sellerId: string;
 }
 
 export const ShopProfileView: React.FC<ShopProfileProps> = ({ sellerId }) => {
-    const { products } = useStore();
+    const { products, sellerReviews } = useStore();
     const sellerProducts = products.filter(p => p.sellerId === sellerId);
+    const [activeTab, setActiveTab] = useState('products');
+    const [showReviewForm, setShowReviewForm] = useState(false);
+    const [rating, setRating] = useState(5);
+    const [comment, setComment] = useState('');
+
+    const reviews = sellerReviews.filter(r => r.sellerId === sellerId);
+    const avgRating = reviews.length > 0 
+        ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(2)
+        : '0.00';
+
+    const handleSubmitReview = () => {
+        if (comment.trim() === '') {
+            store.addNotification("Vui lòng nhập bình luận!", "warning");
+            return;
+        }
+        store.addSellerReview(sellerId, rating, comment);
+        setComment('');
+        setRating(5);
+        setShowReviewForm(false);
+    };
+
+    const renderStars = (r: number) => {
+        return (
+            <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((i) => (
+                    <svg
+                        key={i}
+                        className={`w-4 h-4 ${i <= r ? 'text-secondary fill-secondary' : 'text-text-muted'}`}
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={1.5}
+                    >
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                ))}
+            </div>
+        );
+    };
 
     return (
         <div className="max-w-7xl mx-auto pt-8 pb-32 lg:py-32 px-4 h-full">
@@ -73,22 +112,146 @@ export const ShopProfileView: React.FC<ShopProfileProps> = ({ sellerId }) => {
             </div>
 
             <div className="flex gap-4 mb-12 overflow-x-auto no-scrollbar py-2">
-                <button className="bg-text-main text-white px-8 py-3 rounded-2xl font-black text-[13px] tracking-tight shadow-xl flex items-center gap-2">
+                <button 
+                    onClick={() => setActiveTab('products')}
+                    className={`px-8 py-3 rounded-2xl font-black text-[13px] tracking-tight flex items-center gap-2 transition-all ${
+                        activeTab === 'products' 
+                            ? 'bg-text-main text-white shadow-xl'
+                            : 'bg-white border border-border-main text-text-muted hover:border-primary/40'
+                    }`}
+                >
                     Đang bán ({sellerProducts.length})
                 </button>
-                <button className="bg-white border border-border-main text-text-muted px-8 py-3 rounded-2xl font-black text-[13px] tracking-tight hover:border-primary/40 transition-all">
+                <button 
+                    onClick={() => setActiveTab('sold')}
+                    className={`px-8 py-3 rounded-2xl font-black text-[13px] tracking-tight transition-all ${
+                        activeTab === 'sold'
+                            ? 'bg-text-main text-white shadow-xl'
+                            : 'bg-white border border-border-main text-text-muted hover:border-primary/40'
+                    }`}
+                >
                     Đã bán (142)
                 </button>
-                <button className="bg-white border border-border-main text-text-muted px-8 py-3 rounded-2xl font-black text-[13px] tracking-tight hover:border-primary/40 transition-all">
-                    Đánh giá (56)
+                <button 
+                    onClick={() => setActiveTab('reviews')}
+                    className={`px-8 py-3 rounded-2xl font-black text-[13px] tracking-tight transition-all ${
+                        activeTab === 'reviews'
+                            ? 'bg-text-main text-white shadow-xl'
+                            : 'bg-white border border-border-main text-text-muted hover:border-primary/40'
+                    }`}
+                >
+                    Đánh giá ({reviews.length})
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {sellerProducts.map(product => (
-                    <ProductCard key={product.id} product={product} />
-                ))}
-            </div>
+            {activeTab === 'products' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    {sellerProducts.map(product => (
+                        <ProductCard key={product.id} product={product} />
+                    ))}
+                </div>
+            )}
+
+            {activeTab === 'reviews' && (
+                <div className="space-y-6">
+                    {!showReviewForm && (
+                        <button 
+                            onClick={() => setShowReviewForm(true)}
+                            className="btn-primary !w-full !py-4"
+                        >
+                            ⭐ Viết đánh giá
+                        </button>
+                    )}
+
+                    {showReviewForm && (
+                        <div className="glass-card p-8 space-y-6 border border-border-main animate-in fade-in">
+                            <h3 className="text-xl font-black text-text-main">Đánh giá của bạn</h3>
+                            
+                            <div>
+                                <label className="text-sm font-black text-text-muted uppercase tracking-widest block mb-3">Đánh giá</label>
+                                <div className="flex gap-3">
+                                    {[1, 2, 3, 4, 5].map((i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => setRating(i)}
+                                            className="transition-transform hover:scale-110"
+                                        >
+                                            <svg
+                                                className={`w-8 h-8 cursor-pointer ${
+                                                    i <= rating ? 'text-secondary fill-secondary' : 'text-text-muted'
+                                                }`}
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                strokeWidth={1.5}
+                                            >
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                            </svg>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="text-sm font-black text-text-muted uppercase tracking-widest block mb-3">Bình luận</label>
+                                <textarea
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    placeholder="Chia sẻ trải nghiệm của bạn..."
+                                    className="w-full bg-background border border-border-main rounded-2xl p-4 text-text-main placeholder:text-text-muted outline-none focus:border-primary transition-all resize-none"
+                                    rows={4}
+                                />
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button 
+                                    onClick={handleSubmitReview}
+                                    className="btn-primary flex-1"
+                                >
+                                    Gửi đánh giá
+                                </button>
+                                <button 
+                                    onClick={() => setShowReviewForm(false)}
+                                    className="bg-white border border-border-main text-text-muted hover:text-text-main px-6 py-3 rounded-2xl font-black transition-all flex-1"
+                                >
+                                    Hủy
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="space-y-4">
+                        {reviews.length === 0 ? (
+                            <div className="text-center py-16">
+                                <div className="text-4xl mb-4">⭐</div>
+                                <p className="text-text-muted font-medium">Chưa có đánh giá nào</p>
+                            </div>
+                        ) : (
+                            reviews.map((review) => (
+                                <div key={review.id} className="bg-white p-6 rounded-2xl border border-border-main">
+                                    <div className="flex items-start justify-between mb-3">
+                                        <div>
+                                            <div className="font-black text-text-main">{review.buyerName}</div>
+                                            <div className="flex gap-x-3 mt-1">
+                                                {renderStars(review.rating)}
+                                                <span className="text-xs text-text-muted font-bold">
+                                                    {new Date(review.timestamp).toLocaleDateString('vi-VN')}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p className="text-text-main leading-relaxed">{review.comment}</p>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'sold' && (
+                <div className="text-center py-16">
+                    <p className="text-text-muted font-medium">Chuyên mục này sẽ sớm được cập nhật</p>
+                </div>
+            )}
         </div>
     );
 };
