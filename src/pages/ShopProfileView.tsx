@@ -90,7 +90,7 @@ export const ShopProfileView: React.FC<ShopProfileProps> = ({ sellerId }) => {
                             </div>
                             <div>
                                 <div className="text-[10px] text-text-muted font-black uppercase tracking-[0.2em] leading-none mb-1">Đánh giá</div>
-                                <div className="text-sm font-black text-text-main">4.98 (312 sales)</div>
+                                <div className="text-sm font-black text-text-main">{avgRating} ({reviews.length} reviews)</div>
                             </div>
                         </div>
                     </div>

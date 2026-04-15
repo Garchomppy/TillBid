@@ -69,7 +69,7 @@ export const ProfileView: React.FC = () => {
     setAccountNumber("");
   };
 
-  const handleDeliveryConfirm = (data: DeliveryData) => {
+  const handleDeliveryConfirm = (_data: DeliveryData) => {
     if (!selectedTx) return;
     store.addNotification(
       `Thông tin nhận hàng đã được ghi nhận. Đang chuẩn bị giao hàng!`,
