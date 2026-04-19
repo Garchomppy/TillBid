@@ -5,6 +5,7 @@ import { VerifiedBadge } from "../components/VerifiedBadge";
 import { Modal } from "../components/Modal";
 import { DeliveryModal } from "../components/DeliveryModal";
 import type { DeliveryData } from "../components/DeliveryModal";
+import { Pagination } from "../components/Pagination";
 
 export const ProfileView: React.FC = () => {
   const { currentUser, transactions } = useStore();
@@ -21,12 +22,38 @@ export const ProfileView: React.FC = () => {
   const [walletAmount, setWalletAmount] = useState<number>(0);
   const [selectedBank, setSelectedBank] = useState<string>("Vietcombank");
   const [accountNumber, setAccountNumber] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<"bank" | "momo" | "card">(
+    "bank",
+  );
 
   // Delivery Flow States
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
   const [selectedTx, setSelectedTx] = useState<any>(null);
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const transactionsPerPage = 5;
+
   if (!currentUser) return null;
+
+  // Filter and Sort Transactions
+  const userTransactions = transactions
+    .filter(
+      (tx) =>
+        tx.buyerId === currentUser.id ||
+        tx.sellerId === currentUser.id ||
+        tx.sellerId === currentUser.name,
+    )
+    .sort((a, b) => b.timestamp - a.timestamp);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(userTransactions.length / transactionsPerPage),
+  );
+  const paginatedTransactions = userTransactions.slice(
+    (currentPage - 1) * transactionsPerPage,
+    currentPage * transactionsPerPage,
+  );
 
   const handleFileUpload = (side: "front" | "back") => {
     setIdPhotos((prev) => ({ ...prev, [side]: "uploaded" }));
@@ -45,6 +72,19 @@ export const ProfileView: React.FC = () => {
   const handleDeposit = () => {
     if (walletAmount <= 0) return;
     store.deposit(walletAmount);
+
+    const methodName =
+      paymentMethod === "momo"
+        ? "Momo"
+        : paymentMethod === "card"
+          ? "Thẻ Visa/Mastercard"
+          : "Chuyển khoản ngân hàng";
+
+    store.addNotification(
+      `Đã ghi nhận yêu cầu nạp ${walletAmount.toLocaleString()}đ qua ${methodName}.`,
+      "success",
+    );
+
     setIsDepositOpen(false);
     setWalletAmount(0);
   };
@@ -69,18 +109,10 @@ export const ProfileView: React.FC = () => {
     setAccountNumber("");
   };
 
-  const handleDeliveryConfirm = (_data: DeliveryData) => {
+  const handleDeliveryConfirm = (data: DeliveryData) => {
     if (!selectedTx) return;
-    store.addNotification(
-      `Thông tin nhận hàng đã được ghi nhận. Đang chuẩn bị giao hàng!`,
-      "info",
-    );
+    store.updateTransactionShippingInfo(selectedTx.id, data);
     setIsDeliveryOpen(false);
-    
-    // Automatically confirm receipt after delivery info is submitted
-    setTimeout(() => {
-      store.confirmReceipt(selectedTx.id);
-    }, 500);
   };
 
   return (
@@ -432,28 +464,55 @@ export const ProfileView: React.FC = () => {
               </div>
 
               {/* Transaction History */}
-              <div className="glass-card p-10">
+              <div id="transaction-history" className="glass-card p-10">
                 <div className="flex items-center justify-between mb-10">
                   <h3 className="text-2xl font-black text-text-main">
                     Lịch sử giao dịch
                   </h3>
-                  <button className="text-[11px] font-black uppercase text-primary hover:underline">
-                    Tải sao kê
-                  </button>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Bạn có chắc muốn xóa toàn bộ lịch sử giao dịch? Hành động này không thể hoàn tác.",
+                          )
+                        ) {
+                          store.clearTransactions();
+                        }
+                      }}
+                      className="text-[11px] font-black uppercase text-rose-500 hover:underline"
+                    >
+                      Xóa lịch sử
+                    </button>
+                    <button className="text-[11px] font-black uppercase text-primary hover:underline">
+                      Tải sao kê
+                    </button>
+                  </div>
                 </div>
 
                 {/* Escrow Explanation */}
                 <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6 mb-8">
-                  <div className="font-black text-primary text-[11px] uppercase tracking-widest mb-2">💡 Cách hoạt động ví trung gian</div>
+                  <div className="font-black text-primary text-[11px] uppercase tracking-widest mb-2">
+                    💡 Cách hoạt động ví trung gian
+                  </div>
                   <div className="text-sm text-text-main space-y-2">
-                    <p><strong>Khi đấu giá thành công:</strong> Tiền cọc tạm thời đóng băng trong ví (chưa trừ)</p>
-                    <p><strong>Khi xác nhận nhận hàng:</strong> Tiền sẽ bị trừ từ ví và chuyển đến người bán</p>
-                    <p><strong>Nếu không xác nhận:</strong> Tiền quay lại ví khả dụng sau 7 ngày</p>
+                    <p>
+                      <strong>Khi đấu giá thành công:</strong> Tiền cọc tạm thời
+                      đóng băng trong ví (chưa trừ)
+                    </p>
+                    <p>
+                      <strong>Khi xác nhận nhận hàng:</strong> Tiền sẽ bị trừ từ
+                      ví và chuyển đến người bán
+                    </p>
+                    <p>
+                      <strong>Nếu không xác nhận:</strong> Tiền quay lại ví khả
+                      dụng sau 7 ngày
+                    </p>
                   </div>
                 </div>
 
                 <div className="space-y-6">
-                  {transactions.length === 0 ? (
+                  {paginatedTransactions.length === 0 ? (
                     <div className="py-20 text-center border-2 border-dashed border-border-main rounded-[32px]">
                       <div className="text-4xl mb-4">📜</div>
                       <div className="font-black text-text-muted uppercase text-[10px] tracking-widest">
@@ -461,57 +520,111 @@ export const ProfileView: React.FC = () => {
                       </div>
                     </div>
                   ) : (
-                    transactions.map((tx) => (
-                      <div
-                        key={tx.id}
-                        className="flex flex-col md:flex-row md:items-center gap-6 p-6 rounded-[24px] bg-background border border-border-main hover:border-primary/20 transition-all group"
-                      >
+                    <>
+                      {paginatedTransactions.map((tx) => (
                         <div
-                          className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-sm flex-shrink-0 ${tx.status === "disbursed" ? "bg-green-100 text-green-600" : "bg-secondary/10 text-secondary animate-pulse"}`}
+                          key={tx.id}
+                          className="flex flex-col md:flex-row md:items-center gap-6 p-6 rounded-[24px] bg-background border border-border-main hover:border-primary/20 transition-all group"
                         >
-                          {tx.icon || (tx.status === "disbursed" ? "💰" : "🔒")}
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-black text-text-main group-hover:text-primary transition-colors">
-                            {tx.title || "Giao dịch TillBid"}
-                          </div>
-                          <div className="text-xs font-bold text-text-muted mt-1 uppercase tracking-wider">
-                            {new Date(tx.timestamp).toLocaleDateString()} ·{" "}
-                            <span
-                              className={
-                                tx.status === "disbursed"
-                                  ? "text-green-500"
-                                  : "text-secondary"
-                              }
-                            >
-                              {tx.status === "disbursed"
-                                ? "✓ Đã chuyển cho người bán"
-                                : "🔒 Đang chờ xác nhận nhận hàng"}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-end gap-3">
                           <div
-                            className={`text-xl font-black ${tx.status === "disbursed" ? "text-green-500" : "text-secondary"}`}
+                            className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-sm flex-shrink-0 ${tx.status === "disbursed" ? "bg-green-100 text-green-600" : "bg-secondary/10 text-secondary animate-pulse"}`}
                           >
-                            {tx.status === "disbursed" ? "+" : "-"}
-                            {tx.amount.toLocaleString()}đ
+                            {tx.icon ||
+                              (tx.status === "disbursed" ? "💰" : "🔒")}
                           </div>
-                          {tx.status === "frozen" &&
-                            tx.buyerId === currentUser.id && (
-                              <button
-                                onClick={() => {
-                                  setSelectedTx(tx);
-                                  setIsDeliveryOpen(true);
-                                }}
-                                className="bg-primary text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                          <div className="flex-1">
+                            <div className="font-black text-text-main group-hover:text-primary transition-colors">
+                              {tx.title || "Giao dịch TillBid"}
+                            </div>
+                            <div className="text-xs font-bold text-text-muted mt-1 uppercase tracking-wider">
+                              {new Date(tx.timestamp).toLocaleDateString()} ·{" "}
+                              <span
+                                className={
+                                  tx.status === "disbursed"
+                                    ? "text-green-500"
+                                    : "text-secondary"
+                                }
                               >
-                                ✓ Xác nhận nhận hàng
-                              </button>
-                            )}
+                                {tx.status === "disbursed"
+                                  ? "✓ Đã chuyển cho người bán"
+                                  : tx.status === "pending_payment"
+                                    ? "⚠️ Đang chờ thanh toán (Hạn chót: 30 phút)"
+                                    : "🔒 Đang chờ xác nhận nhận hàng"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end gap-3">
+                            <div
+                              className={`text-xl font-black ${tx.status === "disbursed" ? "text-green-500" : "text-secondary"}`}
+                            >
+                              {tx.status === "disbursed" ? "+" : "-"}
+                              {tx.amount.toLocaleString()}đ
+                            </div>
+                            {tx.status === "pending_payment" &&
+                              tx.buyerId === currentUser.id && (
+                                <button
+                                  onClick={() => {
+                                    if (
+                                      window.confirm(
+                                        `Xác nhận thanh toán ${tx.amount.toLocaleString()}đ cho ${tx.title}?`,
+                                      )
+                                    ) {
+                                      store.payAuction(tx.productId);
+                                    }
+                                  }}
+                                  className="bg-primary text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all animate-pulse"
+                                >
+                                  💸 Thanh toán ngay
+                                </button>
+                              )}
+
+                            {tx.status === "frozen" &&
+                              tx.buyerId === currentUser.id && (
+                                <>
+                                  {!tx.shippingInfo ? (
+                                    <button
+                                      onClick={() => {
+                                        setSelectedTx(tx);
+                                        setIsDeliveryOpen(true);
+                                      }}
+                                      className="bg-secondary text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
+                                    >
+                                      Nhập thông tin giao hàng
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() => {
+                                        if (
+                                          window.confirm(
+                                            "Bạn xác nhận đã nhận được hàng và đồng ý giải ngân tiền từ số dư đang đóng băng cho người bán?",
+                                          )
+                                        ) {
+                                          store.confirmReceipt(tx.id);
+                                        }
+                                      }}
+                                      className="bg-primary text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                                    >
+                                      ✓ Xác nhận nhận hàng
+                                    </button>
+                                  )}
+                                </>
+                              )}
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      ))}
+
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={(page) => {
+                          setCurrentPage(page);
+                          // Optional: Scroll to top of transaction list
+                          document
+                            .getElementById("transaction-history")
+                            ?.scrollIntoView({ behavior: "smooth" });
+                        }}
+                      />
+                    </>
                   )}
                 </div>
               </div>
@@ -526,37 +639,219 @@ export const ProfileView: React.FC = () => {
         onClose={() => setIsDepositOpen(false)}
         title="Nạp tiền vào ví"
       >
-        <div className="space-y-8">
-          <div className="relative">
-            <div className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-black text-text-muted">
-              đ
+        <div className="space-y-6">
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-2 block">
+              Nhập số tiền muốn nạp
+            </label>
+            <div className="relative">
+              <div className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-black text-text-muted">
+                đ
+              </div>
+              <input
+                type="number"
+                value={walletAmount}
+                onChange={(e) => setWalletAmount(Number(e.target.value))}
+                className="w-full bg-background border-2 border-border-main rounded-[24px] pl-14 pr-8 py-6 text-3xl text-black font-black outline-none focus:border-primary transition-all"
+                placeholder="0"
+              />
             </div>
-            <input
-              type="number"
-              value={walletAmount}
-              onChange={(e) => setWalletAmount(Number(e.target.value))}
-              className="w-full bg-background border-2 border-border-main rounded-[24px] pl-14 pr-8 py-6 text-3xl text-black font-black outline-none focus:border-primary transition-all"
-              placeholder="0"
-            />
+            <div className="grid grid-cols-3 gap-3">
+              {[100000, 500000, 1000000, 2000000, 5000000, 10000000].map(
+                (amt) => (
+                  <button
+                    key={amt}
+                    onClick={() => setWalletAmount(amt)}
+                    className={`py-4 rounded-2xl text-[11px] font-black border transition-all ${walletAmount === amt ? "bg-primary border-primary text-white shadow-lg shadow-primary/20" : "bg-white border-border-main text-text-main hover:border-primary hover:text-primary"}`}
+                  >
+                    {amt >= 1000000 ? `${amt / 1000000}M` : `${amt / 1000}K`}
+                  </button>
+                ),
+              )}
+            </div>
           </div>
-          <div className="grid grid-cols-3 gap-3">
-            {[100000, 500000, 1000000, 2000000, 5000000, 10000000].map(
-              (amt) => (
-                <button
-                  key={amt}
-                  onClick={() => setWalletAmount(amt)}
-                  className={`py-4 rounded-2xl text-[11px] font-black border transition-all ${walletAmount === amt ? "bg-primary border-primary text-white shadow-lg shadow-primary/20" : "bg-white border-border-main text-text-main hover:border-primary hover:text-primary"}`}
+
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-2 block">
+              Chọn phương thức thanh toán
+            </label>
+            <div className="grid grid-cols-3 gap-3 text-black">
+              <button
+                onClick={() => setPaymentMethod("momo")}
+                className={`p-5 rounded-[24px] border-2 transition-all flex flex-col items-center gap-3 text-center group ${paymentMethod === "momo" ? "border-[#A50064] bg-[#A50064]/5 shadow-xl shadow-[#A50064]/10" : "border-border-main hover:border-[#A50064]/30 bg-white"}`}
+              >
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${paymentMethod === "momo" ? "bg-[#A50064] text-white" : "bg-background text-[#A50064]"}`}
                 >
-                  {amt >= 1000000 ? `${amt / 1000000}M` : `${amt / 1000}K`}
-                </button>
-              ),
-            )}
+                  <svg
+                    className="w-8 h-8"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+                    <circle cx="12" cy="12" r="5" />
+                  </svg>
+                </div>
+                <div className="font-black text-[12px] uppercase tracking-tighter">
+                  Ví Momo
+                </div>
+              </button>
+
+              <button
+                onClick={() => setPaymentMethod("bank")}
+                className={`p-5 rounded-[24px] border-2 transition-all flex flex-col items-center gap-3 text-center group ${paymentMethod === "bank" ? "border-primary bg-primary/5 shadow-xl shadow-primary/10" : "border-border-main hover:border-primary/30 bg-white"}`}
+              >
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${paymentMethod === "bank" ? "bg-primary text-white" : "bg-background text-primary"}`}
+                >
+                  <svg
+                    className="w-7 h-7"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                    />
+                  </svg>
+                </div>
+                <div className="font-black text-[12px] uppercase tracking-tighter">
+                  Chuyển khoản
+                </div>
+              </button>
+
+              <button
+                onClick={() => setPaymentMethod("card")}
+                className={`p-5 rounded-[24px] border-2 transition-all flex flex-col items-center gap-3 text-center group ${paymentMethod === "card" ? "border-text-main bg-text-main text-white shadow-xl shadow-text-main/10" : "border-border-main hover:border-text-main/30 bg-white"}`}
+              >
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${paymentMethod === "card" ? "bg-white text-text-main" : "bg-background text-text-main"}`}
+                >
+                  <svg
+                    className="w-7 h-7"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                    />
+                  </svg>
+                </div>
+                <div className="font-black text-[10px] md:text-[12px] uppercase tracking-tighter">
+                  Visa/Master
+                </div>
+              </button>
+            </div>
           </div>
+
+          {(paymentMethod === "momo" || paymentMethod === "bank") &&
+            walletAmount > 0 && (
+              <div className="bg-background border border-border-main rounded-[24px] p-6 animate-in zoom-in-95 duration-300">
+                <div className="flex flex-col md:flex-row items-center gap-6">
+                  <div className="w-32 h-32 bg-white p-2 rounded-2xl border-2 border-border-main flex-shrink-0 relative group">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PAYMENT_FOR_TILLBID_${walletAmount}`}
+                      className="w-full h-full opacity-80 group-hover:opacity-100 transition-opacity"
+                      alt="QR Payment"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all rounded-2xl">
+                      <span className="text-[10px] font-black uppercase text-primary">
+                        Scan to Pay
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1 space-y-3">
+                    <div className="text-[11px] font-black text-text-muted uppercase tracking-widest">
+                      Quét mã để thanh toán
+                    </div>
+                    <div className="text-xl font-black text-text-main">
+                      {paymentMethod === "momo"
+                        ? "VÍ MOMO: 0987******"
+                        : "STK: 123456789 (Vietcombank)"}
+                    </div>
+                    <div className="p-3 bg-primary/5 rounded-xl border border-primary/20">
+                      <div className="text-[10px] font-black text-primary uppercase mb-1">
+                        Nội dung chuyển khoản
+                      </div>
+                      <div className="font-mono font-bold text-text-main flex items-center justify-between">
+                        <span>TILLBID {currentUser.id.toUpperCase()}</span>
+                        <button className="text-[10px] text-primary hover:underline">
+                          COPY
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 flex items-start gap-2 text-[10px] text-text-muted italic bg-white/50 p-3 rounded-xl">
+                  <svg
+                    className="w-4 h-4 text-secondary flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  Hệ thống sẽ tự động duyệt tiền sau 1-3 phút khi nhận được giao
+                  dịch.
+                </div>
+              </div>
+            )}
+
+          {paymentMethod === "card" && walletAmount > 0 && (
+            <div className="bg-text-main rounded-[24px] p-6 text-white space-y-4 animate-in slide-in-from-right-4 duration-300">
+              <div className="flex justify-between items-start">
+                <div className="text-[10px] font-black uppercase tracking-widest opacity-60">
+                  Thông tin thẻ thanh toán
+                </div>
+                <div className="flex gap-2">
+                  <div className="w-8 h-5 bg-white/20 rounded-md" />
+                  <div className="w-8 h-5 bg-white/20 rounded-md" />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="form-group">
+                  <input
+                    type="text"
+                    className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-3 outline-none focus:border-white/50 transition-all font-mono"
+                    placeholder="Số thẻ (Card Number)"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    className="bg-white/10 border border-white/20 rounded-xl px-5 py-3 outline-none focus:border-white/50 transition-all font-mono"
+                    placeholder="MM/YY"
+                  />
+                  <input
+                    type="password"
+                    className="bg-white/10 border border-white/20 rounded-xl px-5 py-3 outline-none focus:border-white/50 transition-all font-mono"
+                    placeholder="CVV"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           <button
             onClick={handleDeposit}
-            className="btn-primary w-full py-6 text-lg font-black shadow-2xl shadow-primary/20 flex items-center justify-center gap-3"
+            disabled={walletAmount <= 0}
+            className={`w-full py-6 text-lg font-black shadow-2xl flex items-center justify-center gap-3 rounded-[24px] transition-all ${walletAmount <= 0 ? "bg-background text-text-muted cursor-not-allowed" : "btn-primary shadow-primary/20"}`}
           >
-            Xác nhận nạp tiền
+            {walletAmount > 0
+              ? `Xác nhận nạp ${walletAmount.toLocaleString()}đ`
+              : "Nhập số tiền để tiếp tục"}
           </button>
         </div>
       </Modal>

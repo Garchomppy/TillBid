@@ -49,7 +49,9 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="px-10 py-10">{children}</div>
+        <div className="px-10 py-10 overflow-y-auto max-h-[70vh] custom-scrollbar">
+          {children}
+        </div>
       </div>
     </div>
   );

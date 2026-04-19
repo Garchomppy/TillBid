@@ -1,4 +1,11 @@
-import type { AppState, User, Product, SellerReview } from "../types";
+import type {
+  AppState,
+  User,
+  Product,
+  SellerReview,
+  Transaction,
+} from "../types";
+import { GET_INITIAL_STATE } from "../data/initialState";
 
 class Store {
   private state: AppState = {
@@ -16,7 +23,7 @@ class Store {
   }
 
   private loadInitialData() {
-    const saved = localStorage.getItem("tillbid_state_v5");
+    const saved = localStorage.getItem("tillbid_state_v6");
     if (saved) {
       const parsed = JSON.parse(saved);
       this.state = {
@@ -24,399 +31,13 @@ class Store {
         sellerReviews: parsed.sellerReviews || [],
       };
     } else {
-      this.state = {
-        currentUser: {
-          id: "u1",
-          name: "Kien Nguyen",
-          email: "kien@example.com",
-          balance: 2500000,
-          frozenBalance: 500000,
-          isVerified: true,
-          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kien",
-          productsWon: [],
-          productsSelling: [],
-        },
-        products: [
-          {
-            id: "p11",
-            name: "Máy ảnh Leica M6 Classic Silver",
-            category: "Công nghệ",
-            condition: "Gần như mới",
-            currentPrice: 85000000,
-            startPrice: 75000000,
-            sellerId: "Đức Hiếu",
-            image: "/images/leica-m6.png",
-            images: ["/images/leica-m6.png"],
-            endTime: Date.now() + 3600 * 500,
-            status: "active",
-            highestBidderId: null,
-            watchlistCount: 124,
-            description:
-              "Leica M6 Classic bản Silver cực hiếm. Máy hoạt động hoàn hảo, đo sáng chuẩn, view sáng rõ. Kèm bao da và dây đeo zin. Tuyệt phẩm cho người sưu tầm.",
-            badge: "hot",
-            specs: {
-              brand: "Leica",
-              color: "Silver",
-              material: "Hợp kim nhôm & titan",
-              measurements: "138 x 77 x 34mm",
-              defects: "Không"
-            },
-            detailedDescription: "Máy ảnh Leica M6 Classic hoạt động hoàn hảo, view sáng rõ, đo sáng chuẩn xác. Thân máy bạc silver rất hiếm. Pin vừa thay mới. Kèm bao da zin, dây đeo da bò cao cấp. Đã qua kiểm định chuyên gia. Bảo hành 12 tháng."
-          },
-          {
-            id: "p1",
-            name: "Áo Zara Linen Trắng Size M",
-            category: "Thời trang",
-            condition: "Như mới",
-            currentPrice: 350000,
-            startPrice: 200000,
-            sellerId: "Minh Châu",
-            image:
-              "https://images.unsplash.com/photo-1594938298603-c8148c4b4e5b?w=400&q=80",
-            images: [
-              "https://images.unsplash.com/photo-1594938298603-c8148c4b4e5b?w=400&q=80",
-            ],
-            endTime: Date.now() + 7200 * 1000,
-            status: "active",
-            watchlistCount: 12,
-            description:
-              "Áo Zara linen trắng mua tại Hà Nội, mặc 2 lần. Không có lỗi, còn tag. Giặt khô trước khi giao.",
-            tags: ["Thời trang", "Như mới"],
-            badge: "hot",
-            highestBidderId: "u2",
-            specs: {
-              brand: "Zara",
-              size: "M",
-              color: "Trắng",
-              material: "100% Linen",
-              defects: "Không"
-            },
-            detailedDescription: "Áo Zara linen trắng cao cấp, mua tại store Hà Nội tháng 5/2023. Mặc 2 lần, còn tag zin. Chất liệu linen mềm mại, thoáng mát. Không có lỗi, không dơ, không phai màu. Giặt ướt với nước lạnh, phơi ngoài trời. Hàng chính hãng 100%."
-          },
-          {
-            id: "p2",
-            name: "iPhone 13 Pro 256GB Xanh Sierra",
-            category: "Công nghệ",
-            condition: "Tốt",
-            currentPrice: 14500000,
-            startPrice: 12000000,
-            sellerId: "Hà Linh",
-            image: "/images/iphone-13-pro.png",
-            images: ["/images/iphone-13-pro.png"],
-            endTime: Date.now() + 3600 * 1000,
-            status: "active",
-            watchlistCount: 28,
-            description:
-              "iPhone 13 Pro mua 12/2021. Pin 87%, không trầy xước. Có hộp, cáp zin. Lỗi nhỏ: loa ngoài đôi khi rè nhẹ.",
-            tags: ["Công nghệ", "Tốt"],
-            badge: "ending",
-            highestBidderId: "u3",
-            specs: {
-              brand: "Apple",
-              color: "Xanh Sierra",
-              material: "Inox + Ceramic Shield",
-              measurements: "203.5 x 75.7 x 7.65mm",
-              defects: "Loa ngoài rè nhẹ, pin 87%"
-            },
-            detailedDescription: "iPhone 13 Pro 256GB màu Xanh Sierra mua 12/2021, sử dụng khoảng 18 tháng. Pin 87%, không trầy xước vỏ ngoài. Hệ thống camera hoạt động tốt, màn hình sáng rõ không chấm. Lỗi nhỏ: loa ngoài đôi khi rè nhẹ khi volume 100%. Có hộp, cáp zin, manual."
-          },
-          {
-            id: "p3",
-            name: "Túi Coach Tabby 26 Màu Kem",
-            category: "Túi xách",
-            condition: "Như mới",
-            currentPrice: 3200000,
-            startPrice: 2500000,
-            sellerId: "Thu Hà",
-            image:
-              "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80",
-            images: [
-              "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80",
-            ],
-            endTime: Date.now() + 43200 * 1000,
-            status: "active",
-            watchlistCount: 19,
-            description:
-              "Túi Coach Tabby 26 mua tại Singapore. Dùng 3 lần, còn dustbag và thẻ. Không có lỗi.",
-            tags: ["Túi xách", "Như mới"],
-            badge: "hot",
-            highestBidderId: "u4",
-            specs: {
-              brand: "Coach",
-              color: "Kem (Ivory)",
-              material: "Leather Pebbled",
-              measurements: "26 x 18 x 12cm",
-              defects: "Không"
-            },
-            detailedDescription: "Túi Coach Tabby 26 chính hãng mua tại Singapore 2023. Dùng 3 lần, còn box, dustbag và thẻ Coach. Chất liệu da tự nhiên mềm mịn, khoá từ, khóa kéo suôn mượt. Không có vết bề mặt, không dơ bền. Bộ sưu tập cao cấp."
-          },
-          {
-            id: "p4",
-            name: "Son MAC Ruby Woo + Liner",
-            category: "Mỹ phẩm",
-            condition: "Như mới",
-            currentPrice: 280000,
-            startPrice: 150000,
-            sellerId: "Lan Anh",
-            image:
-              "https://images.unsplash.com/photo-1586495777744-4e6232bf2f9b?w=400&q=80",
-            images: [
-              "https://images.unsplash.com/photo-1586495777744-4e6232bf2f9b?w=400&q=80",
-            ],
-            endTime: Date.now() + 86400 * 1000,
-            status: "active",
-            watchlistCount: 7,
-            description:
-              "Son MAC Ruby Woo dùng 2 lần, còn 95%. Kèm liner MAC chưa dùng. Đã vệ sinh sạch.",
-            tags: ["Mỹ phẩm", "Như mới"],
-            badge: "new",
-            highestBidderId: "u5",
-            specs: {
-              brand: "MAC",
-              color: "Ruby Woo (đỏ tươi)",
-              material: "Lipstick Retro Matte",
-              measurements: "Tube 3g + Liner",
-              defects: "Không"
-            },
-            detailedDescription: "Son MAC Ruby Woo chính hãng từ Mỹ, độc quyền Retro Matte finish. Dùng 2 lần, còn 95% lượng son. Không có lỗi, mở nắp chưa. Kèm theo MAC Lip Liner Ruby Woo 100% mới, chưa dùng. Đã khử trùng bằng cồn 70%. Hàng chính hãng."
-          },
-          {
-            id: "p5",
-            name: "Giày Nike Air Force 1 Size 38",
-            category: "Giày dép",
-            condition: "Tốt",
-            currentPrice: 950000,
-            startPrice: 700000,
-            sellerId: "Tuấn Kiệt",
-            image: "/images/nike-af1.png",
-            images: ["/images/nike-af1.png"],
-            endTime: Date.now() + 14400 * 1000,
-            status: "active",
-            watchlistCount: 15,
-            specs: {
-              brand: "Nike",
-              size: "38 (US 7.5)",
-              color: "Trắng",
-              material: "Leather + Canvas",
-              defects: "Hơi bẩn ở cổ giày, đế còn tốt"
-            },
-            description:
-              "Nike AF1 mua tại Foot Locker. Đi khoảng 10 lần. Đế còn tốt, có vài vết bẩn nhỏ đã vệ sinh.",
-            tags: ["Giày dép", "Tốt"],
-            badge: "hot",
-            highestBidderId: "u6",
-            detailedDescription: "Giày Nike Air Force 1 size 38 (US 7.5) màu trắng chính hãng, mua tại Foot Locker năm 2022. Đi khoảng 10 lần, đế còn rất tốt, chưa bê bối. Phần thân giày có vài vết bẩn nhỏ đã vệ sinh sạch sẽ bằng giấy ẩm. Dây giày còn nguyên, không rách. Box còn, lót giày nguyên bản. Phù hợp để sưu tập hoặc sử dụng tiếp."
-          },
-          {
-            id: "p6",
-            name: "MacBook Air M2 8/256GB Midnight",
-            category: "Công nghệ",
-            condition: "Như mới",
-            currentPrice: 18500000,
-            startPrice: 15000000,
-            sellerId: "Quốc Anh",
-            image: "/images/macbook-pro.png",
-            images: ["/images/macbook-pro.png"],
-            endTime: Date.now() + 172800 * 1000,
-            status: "active",
-            highestBidderId: null,
-            watchlistCount: 42,
-            description:
-              "MacBook Air M2 màu Midnight đẹp không tì vết. Sạc mới 15 lần. Bảo hành chính hãng 6 tháng.",
-            badge: "hot",
-            specs: {
-              brand: "Apple",
-              color: "Midnight (Đen)",
-              material: "Aluminum Unibody",
-              measurements: "304.1 x 212.4 x 15.3mm",
-              defects: "Không"
-            },
-            detailedDescription: "MacBook Air M2 8GB / 256GB màu Midnight hoàn toàn mới, chưa sử dụng thực tế - mua để test chỉ bật từ 5-6 lần. Màn hình Retina 13.6 inch sáng rõ, không chi phí. Chip M2 hoạt động mượt mà, không bị lag. Pin full health 100%. Sạc bộ 20W còn như mới. Bảo hành chính hãng noch 6 tháng. Box zin đầy đủ, tất cả cáp kèm theo."
-          },
-          {
-            id: "p7",
-            name: "Túi Louis Vuitton Neverfull MM",
-            category: "Túi xách",
-            condition: "Tốt",
-            currentPrice: 22000000,
-            startPrice: 15000000,
-            sellerId: "Ngọc Trinh",
-            image: "/images/lv-neverfull.png",
-            images: ["/images/lv-neverfull.png"],
-            endTime: Date.now() + 5400 * 1000,
-            status: "active",
-            highestBidderId: null,
-            watchlistCount: 56,
-            description:
-              "Túi LV Neverfull chính hãng, có hóa đơn. Da có chút ngả màu tự nhiên của dòng Monogram. Ịcc sạch sẽ.",
-            badge: "ending",
-            specs: {
-              brand: "Louis Vuitton",
-              color: "Monogram Canvas - Brown",
-              material: "Canvas Monogram + Vachetta Leather",
-              measurements: "41 x 29 x 20cm (MM)",
-              defects: "Da ngả màu tự nhiên, canvas còn sáng"
-            },
-            detailedDescription: "Túi Louis Vuitton Neverfull MM chính hãng 100%, có hóa đơn mua tại boutique LV Paris 2018. Sử dụng 2 năm, da Monogram ngả màu tự nhiên đẹp (patina). Lót canvas vẫn sáng, khoá LV chắc chắn. Có móc khóa nắp chỉ LV. Không bao giờ mang dưới mưa, bảo quản kỹ lưỡng. Cổ điển không lỗi mốt. Box zin, dustbag, receipt còn."
-          },
-          {
-            id: "p8",
-            name: "Giày Adidas Samba OG Cloud White",
-            category: "Giày dép",
-            condition: "Thương hiệu mới",
-            currentPrice: 2800000,
-            startPrice: 2200000,
-            sellerId: "Minh Tú",
-            image:
-              "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=400&q=80",
-            images: [
-              "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=400&q=80",
-            ],
-            endTime: Date.now() + 259200 * 1000,
-            status: "active",
-            highestBidderId: null,
-            watchlistCount: 89,
-            description:
-              "Adidas Samba OG Size 40. Full box, chưa xỏ chân. Mua tại store Nhật.",
-            badge: "new",
-            specs: {
-              brand: "Adidas",
-              size: "40 (EU)",
-              color: "Cloud White",
-              material: "Leather + Gum Sole",
-              defects: "Không"
-            },
-            detailedDescription: "Giày Adidas Samba OG Cloud White size 40 chính hãng, mua tại store Adidas Nhật Bản 2024. Chưa xỏ chân lần nào, đúng như mới. Box zin nguyên bản còn các thẻ-tag. Đế gum tương tự classical vô cùng rắp côi. Mềm dễda, trắn dễ. Phù hợp để hàng ngày hoặc sưu tập.",
-          },
-          {
-            id: "p9",
-            name: "Nước hoa Chanel Bleu de Chanel EDP",
-            category: "Mỹ phẩm",
-            condition: "Tốt",
-            currentPrice: 1900000,
-            startPrice: 1000000,
-            sellerId: "Hoàng Nam",
-            image:
-              "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400&q=80",
-            images: [
-              "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400&q=80",
-            ],
-            endTime: Date.now() + 21600 * 1000,
-            status: "active",
-            highestBidderId: null,
-            watchlistCount: 14,
-            description:
-              "Chanel Bleu EDP 100ml còn khoảng 85ml. Cam kết 100% original. Mùi hương nam tính quyến rũ.",
-            specs: {
-              brand: "Chanel",
-              color: "Bleu (Xanh)",
-              material: "Eau de Parfum",
-              measurements: "100ml bottle",
-              defects: "Không"
-            },
-            detailedDescription: "Nước hoa Chanel Bleu de Chanel EDP 100ml chính hãng 100%, mua tại boutique Chanel. Sử dụng thường xuyên, còn khoảng 85ml. Giới hạn 15ml. Mùi hương nam tính toàn đời, dễ kết hợp với quần áo hiện đại hoặc sang trọng. Quế che chìm lâu 4-6 giờ. Hộp và quế in đủ công từ Chanel. Hơi ngày để giao dịch.",
-          },
-          {
-            id: "p10",
-            name: "Váy lụa thiết kế màu Champagne",
-            category: "Thời trang",
-            condition: "Như mới",
-            currentPrice: 850000,
-            startPrice: 500000,
-            sellerId: "Hương Giang",
-            image:
-              "https://images.unsplash.com/photo-1539109132382-381bb3f51fc3?w=400&q=80",
-            images: [
-              "https://images.unsplash.com/photo-1539109132382-381bb3f51fc3?w=400&q=80",
-            ],
-            endTime: Date.now() + 129600 * 1000,
-            status: "active",
-            highestBidderId: null,
-            watchlistCount: 22,
-            description:
-              "Váy lụa bóng thiết kế cao cấp, mặc chụp ảnh 1 lần. Size S (45-50kg) cực tôn dáng.",
-            specs: {
-              brand: "Design Handmade",
-              size: "S",
-              color: "Champagne (Vàng nhẹ)",
-              material: "100% Silk",
-              defects: "Không"
-            },
-            detailedDescription: "Váy lụa bóng thiết kế cao cấp màu Champagne tinh tế, mặc chụp ảnh 1 lần chỉ. Size S (45-50kg) cực tôn dáng, làm nổi bật vòng eo. Chất lụa mềm mịn, rơi tự nhiên rất đẹp. Đo vòng bụng 68-72cm, dài cỡ model 167cm là 105cm. Zip sau lưng, ngoặc nhỏ gọn. Không có lỗi, không xấu. Perfect cho pre-wedding hoặc sự kiện đặc biệt. Hạn chế, độc lập thiết kế.",
-          },
-        ],
-        transactions: [
-          {
-            id: "t1",
-            productId: "p1",
-            buyerId: "u2",
-            sellerId: "u1",
-            amount: 350000,
-            status: "disbursed",
-            timestamp: Date.now(),
-            title: "Nhận tiền – Áo Zara",
-            icon: "✅",
-          },
-          {
-            id: "t2",
-            productId: "p3",
-            buyerId: "u1",
-            sellerId: "u4",
-            amount: 500000,
-            status: "frozen",
-            timestamp: Date.now(),
-            title: "Đặt cọc – Túi Coach",
-            icon: "🔒",
-          },
-          {
-            id: "t3",
-            productId: "p2",
-            buyerId: "u1",
-            sellerId: "u3",
-            amount: 200000,
-            status: "disbursed",
-            timestamp: Date.now(),
-            title: "Hoàn cọc – iPhone 12",
-            icon: "🔄",
-          },
-        ],
-        notifications: [],
-        sellerReviews: [
-          {
-            id: "r1",
-            sellerId: "Đức Hiếu",
-            buyerId: "u2",
-            buyerName: "Hải Dương",
-            rating: 5,
-            comment: "Sản phẩm đúng như mô tả, ngon lắm. Giao hàng nhanh.",
-            timestamp: Date.now() - 86400000,
-          },
-          {
-            id: "r2",
-            sellerId: "Đức Hiếu",
-            buyerId: "u3",
-            buyerName: "Linh Chi",
-            rating: 5,
-            comment: "Tuyệt vời! Rất hài lòng. Sẽ mua lại lần tiếp theo.",
-            timestamp: Date.now() - 172800000,
-          },
-          {
-            id: "r3",
-            sellerId: "Minh Châu",
-            buyerId: "u1",
-            buyerName: "Kiên",
-            rating: 4,
-            comment: "Tốt, nhưng giao hàng hơi muộn một chút.",
-            timestamp: Date.now() - 259200000,
-          },
-        ],
-      };
+      this.state = GET_INITIAL_STATE();
       this.save();
     }
   }
 
   private save() {
-    localStorage.setItem("tillbid_state_v5", JSON.stringify(this.state));
+    localStorage.setItem("tillbid_state_v6", JSON.stringify(this.state));
     this.notify();
   }
 
@@ -441,7 +62,21 @@ class Store {
         ...this.state,
         currentUser: { ...this.state.currentUser, isVerified: true },
       };
-      this.addNotification("Account verified successfully!", "success");
+      this.addNotification("Xác minh danh tính thành công!", "success");
+      this.save();
+    }
+  }
+
+  agreeToLivePolicy() {
+    if (this.state.currentUser) {
+      this.state = {
+        ...this.state,
+        currentUser: { ...this.state.currentUser, hasAgreedToLivePolicy: true },
+      };
+      this.addNotification(
+        "Bạn đã chấp nhận chính sách đấu giá Live.",
+        "success",
+      );
       this.save();
     }
   }
@@ -501,20 +136,31 @@ class Store {
     const user = this.state.currentUser;
     if (!user) return;
 
-    if (user.balance < amount) {
-      this.addNotification(
-        `Số dư ví không đủ! Cần thêm ${(amount - user.balance).toLocaleString()}đ`,
-        "warning",
-      );
-      return;
-    }
-
     const productIndex = this.state.products.findIndex(
       (p) => p.id === productId,
     );
     if (productIndex === -1) return;
 
     const product = this.state.products[productIndex];
+
+    // LIVE LOGIC: No escrow, just check policy
+    if (product.isLive) {
+      if (!user.hasAgreedToLivePolicy) {
+        throw new Error(
+          "Bạn cần chấp nhận chính sách đấu giá Live trước khi đặt giá.",
+        );
+      }
+    } else {
+      // REGULAR LOGIC: Check balance
+      if (user.balance < amount) {
+        this.addNotification(
+          `Số dư ví không đủ! Cần thêm ${(amount - user.balance).toLocaleString()}đ`,
+          "warning",
+        );
+        return;
+      }
+    }
+
     if (amount <= product.currentPrice) {
       this.addNotification("Giá thầu phải cao hơn giá hiện tại", "warning");
       return;
@@ -531,52 +177,52 @@ class Store {
     let newState = { ...this.state };
     let newTransactions = [...this.state.transactions];
 
-    // 1. REFUND PREVIOUS BIDDER (if it was the current user or another logged-in user)
-    // In this simplified mock, we assume only the latest highest bidder had money frozen.
-    if (product.highestBidderId === user.id) {
-      // User is outbidding themselves, refund previous bid first
-      const updatedUser = { ...newState.currentUser! };
-      updatedUser.balance += product.currentPrice;
-      updatedUser.frozenBalance -= product.currentPrice;
-      newState.currentUser = updatedUser;
+    // ESCROW LOGIC (Only for Regular Auctions)
+    if (!product.isLive) {
+      // 1. REFUND PREVIOUS BIDDER (Only if outbidding themselves or if we need to release old hold)
+      // Note: Real world would refund the OTHER previous bidder, but this mock simplifies for current user.
+      if (product.highestBidderId === user.id) {
+        const updatedUser = { ...newState.currentUser! };
+        updatedUser.balance += product.currentPrice;
+        updatedUser.frozenBalance -= product.currentPrice;
+        newState.currentUser = updatedUser;
+
+        newTransactions.push({
+          id: "t_ref_" + Math.random().toString(36).substr(2, 9),
+          productId: product.id,
+          buyerId: user.id,
+          sellerId: product.sellerId,
+          amount: product.currentPrice,
+          status: "disbursed" as const,
+          timestamp: Date.now(),
+          title: `Hoàn tiền cọc (Nâng giá) – ${product.name}`,
+          icon: "🔄",
+        });
+      }
+
+      // 2. DEPOSIT NEW BID
+      const finalUser = { ...(newState.currentUser || user) };
+      finalUser.balance -= amount;
+      finalUser.frozenBalance += amount;
+      newState.currentUser = finalUser;
 
       newTransactions.push({
-        id: "t_ref_" + Math.random().toString(36).substr(2, 9),
+        id: "t_dep_" + Math.random().toString(36).substr(2, 9),
         productId: product.id,
         buyerId: user.id,
         sellerId: product.sellerId,
-        amount: product.currentPrice,
-        status: "disbursed" as const, // Status for refunded money
+        amount: amount,
+        status: "frozen" as const,
         timestamp: Date.now(),
-        title: `Hoàn tiền cọc (Nâng giá) – ${product.name}`,
-        icon: "🔄",
+        title: `Đặt cọc đấu giá – ${product.name}`,
+        icon: "🔒",
       });
-    } else if (
-      product.highestBidderId &&
-      !product.highestBidderId.startsWith("mock_")
-    ) {
-      // If it was another REAL user (not implemented fully here as we only have one session), 
-      // in a real app you'd update their balance in the DB.
-      // For this mock/single-user session, we only care if the currentUser is being refunded.
+    } else {
+      // LIVE AUCTION: Absolutely no wallet/escrow interaction during bidding.
+      // We explicitly reset any changes to currentUser to be safe.
+      newState.currentUser = this.state.currentUser;
+      newTransactions = this.state.transactions;
     }
-
-    // 2. DEPOSIT NEW BID
-    const updatedUser = { ...newState.currentUser! };
-    updatedUser.balance -= amount;
-    updatedUser.frozenBalance += amount;
-    newState.currentUser = updatedUser;
-
-    newTransactions.push({
-      id: "t_dep_" + Math.random().toString(36).substr(2, 9),
-      productId: product.id,
-      buyerId: user.id,
-      sellerId: product.sellerId,
-      amount: amount,
-      status: "frozen" as const,
-      timestamp: Date.now(),
-      title: `Đặt cọc đấu giá – ${product.name}`,
-      icon: "🔒",
-    });
 
     // 3. UPDATE PRODUCT
     const newProducts = [...this.state.products];
@@ -593,14 +239,18 @@ class Store {
     };
 
     this.addNotification(
-      `Đặt cọc ${amount.toLocaleString()}đ thành công cho ${product.name}!`,
+      product.isLive
+        ? `Đặt giá ${amount.toLocaleString()}đ thành công cho ${product.name} (Live)!`
+        : `Đặt cọc ${amount.toLocaleString()}đ thành công cho ${product.name}!`,
       "success",
     );
     this.save();
   }
 
   placeBotBid(productId: string, botName: string, newPrice: number) {
-    const productIndex = this.state.products.findIndex((p) => p.id === productId);
+    const productIndex = this.state.products.findIndex(
+      (p) => p.id === productId,
+    );
     if (productIndex === -1) return;
 
     const product = this.state.products[productIndex];
@@ -620,13 +270,13 @@ class Store {
     let newTransactions = this.state.transactions;
     let hasRefund = false;
 
-    if (prevBidderId === newUserState?.id) {
+    if (!product.isLive && prevBidderId === newUserState?.id) {
       newUserState = {
         ...newUserState,
         balance: newUserState.balance + oldPrice,
         frozenBalance: newUserState.frozenBalance - oldPrice,
       };
-      
+
       const refundTx = {
         id: "t_ref_bot_" + Math.random().toString(36).substr(2, 9),
         productId: product.id,
@@ -650,7 +300,10 @@ class Store {
     };
 
     if (hasRefund) {
-      this.addNotification(`Bạn đã bị ${botName} vượt giá! Hoàn lại ${oldPrice.toLocaleString()}đ`, "info");
+      this.addNotification(
+        `Bạn đã bị ${botName} vượt giá! Hoàn lại ${oldPrice.toLocaleString()}đ`,
+        "info",
+      );
     }
 
     this.save();
@@ -667,19 +320,200 @@ class Store {
     if (product.status !== "active") return;
 
     const newProducts = [...this.state.products];
-    newProducts[productIndex] = { ...product, status: "ended" };
+    const deadline = Date.now() + 30 * 60 * 1000;
+    newProducts[productIndex] = {
+      ...product,
+      status: "ended",
+      paymentDeadline: product.isLive ? deadline : undefined,
+      paymentStatus: product.isLive ? "pending" : undefined,
+    };
 
     let newState = { ...this.state, products: newProducts };
 
     if (product.highestBidderId === this.state.currentUser?.id) {
-      this.addNotification(
-        `Chúc mừng! Bạn đã thắng phiên đấu giá ${product.name}! Vui lòng điền thông tin nhận hàng trong Profile.`,
-        "success",
-      );
+      if (product.isLive) {
+        // Create pending payment transaction
+        const pendingTx: Transaction = {
+          id: "t_pen_" + Math.random().toString(36).substr(2, 9),
+          productId: product.id,
+          buyerId: this.state.currentUser.id,
+          sellerId: product.sellerId,
+          amount: product.currentPrice,
+          status: "pending_payment",
+          timestamp: Date.now(),
+          title: `Chờ thanh toán (Thắng đấu giá) – ${product.name}`,
+          icon: "⏳",
+        };
+        newState.transactions = [pendingTx, ...this.state.transactions];
+
+        this.addNotification(
+          `Bạn đã thắng! Bạn có 30 phút để thanh toán cho ${product.name}.`,
+          "success",
+        );
+      } else {
+        this.addNotification(
+          `Chúc mừng! Bạn đã thắng phiên đấu giá ${product.name}! Vui lòng điền thông tin nhận hàng trong Profile.`,
+          "success",
+        );
+      }
     }
 
     this.state = newState;
     this.save();
+  }
+
+  payAuction(productId: string) {
+    const productIndex = this.state.products.findIndex(
+      (p) => p.id === productId,
+    );
+    if (productIndex === -1 || !this.state.currentUser) return;
+
+    const product = this.state.products[productIndex];
+    if (this.state.currentUser.balance < product.currentPrice) {
+      this.addNotification("Số dư không đủ để thanh toán!", "warning");
+      return;
+    }
+
+    const user = { ...this.state.currentUser };
+    user.balance -= product.currentPrice;
+    user.frozenBalance += product.currentPrice;
+
+    const newProducts = [...this.state.products];
+    newProducts[productIndex] = {
+      ...product,
+      paymentStatus: "paid",
+      status: "disbursed",
+    };
+
+    const txIndex = this.state.transactions.findIndex(
+      (t) => t.productId === productId && t.status === "pending_payment",
+    );
+
+    let newTransactions = [...this.state.transactions];
+    if (txIndex !== -1) {
+      newTransactions[txIndex] = {
+        ...newTransactions[txIndex],
+        status: "frozen",
+        title: `Thanh toán: Chờ giao hàng – ${product.name}`,
+        icon: "🔒",
+      };
+    } else {
+      const tx: Transaction = {
+        id: "t_pay_" + Math.random().toString(36).substr(2, 9),
+        productId: product.id,
+        buyerId: user.id,
+        sellerId: product.sellerId,
+        amount: product.currentPrice,
+        status: "frozen",
+        timestamp: Date.now(),
+        title: `Thanh toán: Chờ giao hàng – ${product.name}`,
+        icon: "🔒",
+      };
+      newTransactions = [tx, ...newTransactions];
+    }
+
+    this.state = {
+      ...this.state,
+      currentUser: user,
+      products: newProducts,
+      transactions: newTransactions,
+    };
+    this.addNotification("Thanh toán thành công!", "success");
+    this.save();
+  }
+
+  updateTransactionShippingInfo(transactionId: string, info: any) {
+    const txIndex = this.state.transactions.findIndex(
+      (t) => t.id === transactionId,
+    );
+    if (txIndex === -1) return;
+
+    const newTransactions = [...this.state.transactions];
+    newTransactions[txIndex] = {
+      ...newTransactions[txIndex],
+      shippingInfo: info,
+      title: newTransactions[txIndex].title?.replace(
+        "Chờ giao hàng",
+        "Đang vận chuyển",
+      ),
+    };
+
+    this.state = {
+      ...this.state,
+      transactions: newTransactions,
+    };
+    this.addNotification("Đã cập nhật thông tin giao hàng!", "success");
+    this.save();
+    this.notify();
+  }
+
+  applyPenalty(productId: string) {
+    const productIndex = this.state.products.findIndex(
+      (p) => p.id === productId,
+    );
+    if (productIndex === -1 || !this.state.currentUser) return;
+
+    const product = this.state.products[productIndex];
+    if (product.paymentStatus !== "pending") return;
+
+    // 10% Penalty
+    const penaltyAmount = Math.floor(product.currentPrice * 0.1);
+    const user = { ...this.state.currentUser };
+    user.balance = Math.max(0, user.balance - penaltyAmount);
+
+    const newProducts = [...this.state.products];
+    newProducts[productIndex] = { ...product, paymentStatus: "penalized" };
+
+    this.state = {
+      ...this.state,
+      currentUser: user,
+      products: newProducts,
+    };
+    this.addNotification(
+      `Bạn bị phạt ${penaltyAmount.toLocaleString()}đ vì không thanh toán đúng hạn!`,
+      "warning",
+    );
+    this.save();
+    this.notify();
+  }
+
+  clearTransactions() {
+    this.state = {
+      ...this.state,
+      transactions: [],
+    };
+    this.addNotification("Đã xóa lịch sử giao dịch.", "info");
+    this.save();
+    this.notify();
+  }
+
+  resetProduct(productId: string) {
+    const productIndex = this.state.products.findIndex(
+      (p) => p.id === productId,
+    );
+    if (productIndex === -1) return;
+
+    const product = this.state.products[productIndex];
+    const newProducts = [...this.state.products];
+    newProducts[productIndex] = {
+      ...product,
+      currentPrice: product.startPrice,
+      highestBidderId: undefined,
+      status: "active",
+      paymentDeadline: undefined,
+      paymentStatus: undefined,
+    };
+
+    this.state = {
+      ...this.state,
+      products: newProducts,
+    };
+    this.addNotification(
+      `Đã reset sản phẩm ${product.name} về giá khởi điểm.`,
+      "info",
+    );
+    this.save();
+    this.notify();
   }
 
   confirmReceipt(transactionId: string) {
@@ -703,7 +537,6 @@ class Store {
     const currentUser = this.state.currentUser;
     if (currentUser?.id === tx.buyerId) {
       const user = { ...currentUser };
-      // Funds are officially gone from frozen balance (transferred to seller)
       user.frozenBalance = Math.max(0, user.frozenBalance - tx.amount);
       newState = { ...newState, currentUser: user };
       this.addNotification(
@@ -838,35 +671,33 @@ class Store {
         highestBidderId: "mock_" + mockUser,
       };
 
-      this.state = { ...this.state, products: newProducts };
-
       // Check if current user was just outbid
-      if (prevBidderId === this.state.currentUser?.id) {
+      if (!product.isLive && prevBidderId === this.state.currentUser?.id) {
         const user = { ...this.state.currentUser };
         user.balance += oldPrice;
         user.frozenBalance -= oldPrice;
-        
+
         const refundTx = {
           id: "t_ref_sim_" + Math.random().toString(36).substr(2, 9),
           productId: product.id,
           buyerId: user.id,
           sellerId: product.sellerId,
-          amount: product.currentPrice,
+          amount: oldPrice,
           status: "disbursed" as const,
           timestamp: Date.now(),
           title: `Hoàn tiền: Bị vượt giá – ${product.name}`,
           icon: "💰",
         };
 
-        this.state = { 
-          ...this.state, 
+        this.state = {
+          ...this.state,
           products: newProducts,
           currentUser: user,
-          transactions: [...this.state.transactions, refundTx]
+          transactions: [...this.state.transactions, refundTx],
         };
 
         this.addNotification(
-          `Bạn vừa bị vượt mặt bởi người dùng ${mockUser}! Tiền cọc ${product.currentPrice.toLocaleString()}đ đã hoàn về ví.`,
+          `Bạn vừa bị vượt mặt bởi người dùng ${mockUser}! Tiền cọc ${oldPrice.toLocaleString()}đ đã hoàn về ví.`,
           "warning",
         );
       } else {
@@ -930,11 +761,8 @@ class Store {
   getSellerAverageRating(sellerId: string): number {
     const reviews = this.getSellerReviews(sellerId);
     if (reviews.length === 0) return 0;
-    return (
-      reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
-    );
+    return reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
   }
-
 }
 
 export const store = new Store();

@@ -23,6 +23,7 @@ export interface User {
   avatar: string;
   productsWon: string[];
   productsSelling: string[];
+  hasAgreedToLivePolicy?: boolean;
 }
 
 export interface Product {
@@ -38,6 +39,9 @@ export interface Product {
     endTime: number; // Precision: ms timestamp
     status: 'active' | 'ended' | 'disbursed';
     watchlistCount: number;
+    isLive?: boolean;
+    paymentDeadline?: number;
+    paymentStatus?: 'pending' | 'paid' | 'penalized';
     condition: string;
     images: string[];
     tags?: string[];
@@ -59,10 +63,11 @@ export interface Transaction {
     buyerId: string;
     sellerId: string;
     amount: number;
-    status: 'frozen' | 'disbursed';
+    status: 'pending_payment' | 'frozen' | 'disbursed';
     timestamp: number;
     title?: string;
     icon?: string;
+    shippingInfo?: any;
 }
 
 export interface Notification {
