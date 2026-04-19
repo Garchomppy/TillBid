@@ -498,7 +498,7 @@ class Store {
     newProducts[productIndex] = {
       ...product,
       currentPrice: product.startPrice,
-      highestBidderId: undefined,
+      highestBidderId: null,
       status: "active",
       paymentDeadline: undefined,
       paymentStatus: undefined,

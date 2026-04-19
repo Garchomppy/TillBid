@@ -135,8 +135,6 @@ export const LiveAuctionView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"history" | "comments">("history");
   const [manualBidAmount, setManualBidAmount] = useState("");
   const [newComment, setNewComment] = useState("");
-  const [newMessage, setNewMessage] = useState("");
-
   const [comments, setComments] = useState<
     { id: number; name: string; comment: string; isMe: boolean; time: string }[]
   >([
@@ -162,26 +160,6 @@ export const LiveAuctionView: React.FC = () => {
       time: "14:22",
     },
   ]);
-
-  const [chatMessages, setChatMessages] = useState<
-    { id: number; name: string; message: string; isMe: boolean; time: string }[]
-  >([
-    {
-      id: 1,
-      name: "System",
-      message: "Chào mừng mọi người đến với phiên đấu giá hôm nay!",
-      isMe: false,
-      time: "14:00",
-    },
-    {
-      id: 2,
-      name: "Admin",
-      message: "Sản phẩm iPhone 13 Pro đang có giá cực hời nha cả nhà.",
-      isMe: false,
-      time: "14:05",
-    },
-  ]);
-
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Khởi tạo lịch sử đấu giá
@@ -268,7 +246,7 @@ export const LiveAuctionView: React.FC = () => {
   useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: "smooth" });
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [bidHistory, chatMessages, activeTab]);
+  }, [bidHistory, activeTab]);
 
   // Penalty Check Effect
   useEffect(() => {
@@ -339,21 +317,6 @@ export const LiveAuctionView: React.FC = () => {
       },
     ]);
     setNewComment("");
-  };
-
-  const handleSendMessage = () => {
-    if (!newMessage.trim() || !currentUser) return;
-    setChatMessages([
-      ...chatMessages,
-      {
-        id: Date.now(),
-        name: currentUser.name,
-        message: newMessage,
-        isMe: true,
-        time: "Vừa xong",
-      },
-    ]);
-    setNewMessage("");
   };
 
   return (
